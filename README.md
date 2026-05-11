@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VIG Dashboard
 
-## Getting Started
+Financieel overzicht van beursgenoteerde leden van de **Vereniging Innovatieve Geneesmiddelen** (VIG). Live koersen + jaarcijfers via Yahoo Finance, ziektegebieden + geografische omzet via handmatig onderhouden JSON.
 
-First, run the development server:
+> **Disclaimer:** Geen beleggingsadvies. Data kan vertraagd of onnauwkeurig zijn.
+
+## Tech stack
+
+- **Next.js 14** (App Router, TypeScript)
+- **Tailwind CSS v3** + **shadcn/ui** componenten (Tailwind v3 variant — niet `shadcn add` blindelings draaien)
+- **Recharts** voor grafieken
+- **yahoo-finance2** voor financiële data, gecachet met `unstable_cache` (12 uur)
+- **cmdk** voor ⌘K-zoekpalet
+- **lucide-react** voor icoontjes
+- **TradingView mini-widget** voor live koers­grafieken (extern via JS-embed)
+
+## Lokaal draaien
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# → http://localhost:3000 (of 3001 als 3000 bezet is)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Belangrijkste mappen
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+app/
+  page.tsx                       overzicht met hero + sparkline-cards
+  company/[slug]/page.tsx        detailpagina per bedrijf
+  compare/page.tsx               vergelijkings­pagina met regio-filter
+  api/test/[ticker]/route.ts     debug-route voor ruwe Yahoo-data
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+components/
+  charts/                        Recharts-componenten
+  compare/                       comparison-view + indexed chart
+  ui/                            shadcn primitieven (Card, Button)
+  company-card.tsx
+  company-monogram.tsx           gradient-monogram of logo
+  command-palette.tsx            ⌘K
+  ...
 
-## Learn More
+data/
+  companies.ts                   bedrijfslijst (metadata + brand color)
+  segments.ts                    ziektegebieden + geografie (handmatig)
 
-To learn more about Next.js, take a look at the following resources:
+lib/
+  yahoo.ts                       getQuote, getIncomeStatement* (cached 12u)
+  aggregate.ts                   YoY, TTM, sparkline-serie helpers
+  format.ts                      Intl-gebaseerde formatters
+  utils.ts                       cn() helper
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+public/
+  logos/                         (leeg) — drop hier .svg's en zet
+                                  logoUrl in companies.ts om monogram te vervangen
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Een bedrijf toevoegen
 
-## Deploy on Vercel
+1. Open `data/companies.ts`, kopieer een bestaand object, vul aan:
+   - `slug`: URL-vriendelijke naam (bv. `eli-lilly`)
+   - `ticker`: Yahoo-symbool (bv. `LLY`)
+   - `tradingViewSymbol`: bv. `NYSE:LLY` (zie tradingview.com voor exact symbool)
+   - `color`: hex uit VIG-palet of distinct
+2. Open `data/segments.ts`, voeg een entry toe onder de yahoo-ticker met therapeutische + geografische verdeling uit het meest recente jaarverslag. Percentages tellen op tot ~100.
+3. Hot-reload pikt het op.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Segmentdata bijwerken
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Eens per jaar (na publicatie nieuw jaarverslag):
+
+1. Open `data/segments.ts`
+2. Voeg een nieuw `YearlySegments`-object toe aan de array van het bedrijf (zelfde structuur, hoger `fiscalYear`)
+3. `getLatestSegments()` pakt automatisch het meest recente jaar
+
+## Yahoo Finance kwirken
+
+Belangrijke gotchas (zie ook commentaren in `lib/yahoo.ts`):
+
+- yahoo-finance2 v3 vereist `new YahooFinance()`.
+- `module` voor income statement is `"financials"` — niet `"income-statement"`.
+- Response-keys hebben geen prefix: `row.totalRevenue`, niet `row.annualTotalRevenue`.
+- Roche werkt alleen met `RO.SW` (niet `ROG.SW`).
+- Quarterly historie via gratis API is gelimiteerd tot ~5-7 perioden, niet 20.
+
+## Deployment naar Vercel
+
+1. **GitHub repo aanmaken.** In de root van dit project:
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial VIG Dashboard"
+   git branch -M main
+   git remote add origin https://github.com/<jouw-username>/vig-dashboard.git
+   git push -u origin main
+   ```
+   *(Maak eerst de repo aan op github.com — leeg, geen README, geen .gitignore.)*
+
+2. **Vercel koppelen.** Op [vercel.com/new](https://vercel.com/new):
+   - "Import Git Repository" → kies `vig-dashboard`
+   - Framework preset: **Next.js** (auto-gedetecteerd)
+   - Build command: `npm run build` (default)
+   - Output directory: `.next` (default)
+   - Environment variables: **geen** — Yahoo Finance heeft geen API-key nodig.
+   - Klik **Deploy**.
+
+3. **Custom domain (optioneel).** Onder Settings → Domains, voeg je eigen domein toe.
+
+Volgende pushes naar `main` deployen automatisch.
+
+## Bekende beperkingen / volgende stappen
+
+- **Logo's** — `logoUrl`-veld in `companies.ts` staat klaar. Drop SVG's in `public/logos/` en zet bv. `logoUrl: "/logos/pfizer.svg"`.
+- **Marktaandeel per ziektegebied** — UI-sectie staat klaar op `/compare`, data ontbreekt nog.
+- **Dark mode** — toggle werkt; kleuren zijn voor ~80% omgezet; sommige cards kunnen nog polish gebruiken.
+- **Echte 5-jaar kwartaalhistorie** — vereist betaalde data-bron (Refinitiv, Bloomberg, Polygon).

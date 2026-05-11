@@ -34,3 +34,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code local state
+.claude/
+
+# editor swap files
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# os
+Thumbs.db

@@ -1,101 +1,164 @@
-import Image from "next/image";
+import { HeroPattern } from "@/components/hero-pattern";
+import { HomeGrid } from "@/components/home-grid";
+import { companies } from "@/data/companies";
+import {
+  ALL_REGIONS,
+  getLatestSegments,
+  type Region,
+} from "@/data/segments";
+import { annualRevenueSeries } from "@/lib/aggregate";
+import { toUsdEquivalent } from "@/lib/fx";
+import { formatCurrencyCompact } from "@/lib/format";
+import {
+  getHistoricalPrices52w,
+  getIncomeStatementAnnual,
+  getQuote,
+  type CompanyQuote,
+  type PricePoint,
+} from "@/lib/yahoo";
 
-export default function Home() {
+export const revalidate = 43200;
+
+export default async function HomePage() {
+  const regionSharesByTicker: Record<
+    string,
+    Partial<Record<Region, number>>
+  > = {};
+  const therapeuticAreasByTicker: Record<string, string[]> = {};
+  for (const c of companies) {
+    const latest = getLatestSegments(c.ticker);
+    const shares: Partial<Record<Region, number>> = {};
+    const areas: string[] = [];
+    if (latest) {
+      for (const region of ALL_REGIONS) {
+        const found = latest.geographicSegments.find(
+          (g) => g.region === region,
+        );
+        if (found) shares[region] = found.revenueShare;
+      }
+      for (const ta of latest.therapeuticAreas) {
+        if (ta.revenueShare > 0) areas.push(ta.name);
+      }
+    }
+    regionSharesByTicker[c.ticker] = shares;
+    therapeuticAreasByTicker[c.ticker] = areas;
+  }
+
+  const results = await Promise.all(
+    companies.map(async (c) => {
+      const [annual, quote, prices] = await Promise.all([
+        getIncomeStatementAnnual(c.ticker),
+        getQuote(c.ticker),
+        getHistoricalPrices52w(c.ticker),
+      ]);
+      return {
+        ticker: c.ticker,
+        revenueSeries: annualRevenueSeries(annual),
+        quote,
+        prices,
+      };
+    }),
+  );
+
+  const revenueSeriesByTicker: Record<string, number[]> = {};
+  const quotesByTicker: Record<string, CompanyQuote | null> = {};
+  const pricesByTicker: Record<string, PricePoint[]> = {};
+  for (const r of results) {
+    revenueSeriesByTicker[r.ticker] = r.revenueSeries;
+    quotesByTicker[r.ticker] = r.quote;
+    pricesByTicker[r.ticker] = r.prices;
+  }
+
+  const latestByCurrency = new Map<string, number>();
+  for (const c of companies) {
+    const series = revenueSeriesByTicker[c.ticker];
+    const latestRevenue = series[series.length - 1];
+    if (latestRevenue !== undefined) {
+      latestByCurrency.set(
+        c.currency,
+        (latestByCurrency.get(c.currency) ?? 0) + latestRevenue,
+      );
+    }
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="relative">
+      <HeroPattern />
+      <section className="max-w-3xl">
+        <div className="flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-vig-orange" />
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-vig-orange">
+            Vereniging Innovatieve Geneesmiddelen
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <h1 className="font-display mt-5 text-5xl font-semibold tracking-tight text-vig-navy sm:text-6xl sm:leading-[1.05]">
+          Beursgenoteerde leden, in één oogopslag.
+        </h1>
+        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-600">
+          Financiële kerncijfers, ziektegebieden en geografische omzet­verdeling
+          van de beursgenoteerde leden van de VIG. Cijfers in eigen valuta.
+        </p>
+      </section>
+
+      <section className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-zinc-200/70 bg-zinc-200/60 sm:grid-cols-3">
+        <Stat label="Leden" value={String(companies.length)} sublabel="In dit dashboard" />
+        <Stat
+          label="Beurzen & valuta's"
+          value={`${new Set(companies.map((c) => c.exchange)).size} · ${new Set(companies.map((c) => c.currency)).size}`}
+          sublabel="Verspreid over markten"
+        />
+        <Stat
+          label="Gecombineerde omzet (jaar)"
+          value={renderCombinedRevenue(latestByCurrency)}
+          sublabel="Som laatste jaarcijfers, eigen valuta"
+        />
+      </section>
+
+      <section className="mt-16">
+        <HomeGrid
+          companies={companies}
+          regionSharesByTicker={regionSharesByTicker}
+          quotesByTicker={quotesByTicker}
+          pricesByTicker={pricesByTicker}
+          therapeuticAreasByTicker={therapeuticAreasByTicker}
+        />
+      </section>
     </div>
   );
+}
+
+function Stat({
+  label,
+  value,
+  sublabel,
+}: {
+  label: string;
+  value: string;
+  sublabel?: string;
+}) {
+  return (
+    <div className="bg-white px-6 py-5">
+      <p className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">
+        {label}
+      </p>
+      <p className="font-display mt-2 text-2xl font-semibold tabular-nums tracking-tight text-vig-navy">
+        {value}
+      </p>
+      {sublabel && (
+        <p className="mt-1 text-xs text-zinc-500">{sublabel}</p>
+      )}
+    </div>
+  );
+}
+
+function renderCombinedRevenue(byCurrency: Map<string, number>): string {
+  const entries = Array.from(byCurrency.entries());
+  if (entries.length === 0) return "—";
+  return entries
+    .sort(
+      (a, b) =>
+        toUsdEquivalent(b[1], b[0]) - toUsdEquivalent(a[1], a[0]),
+    )
+    .map(([cur, sum]) => formatCurrencyCompact(sum, cur))
+    .join(" · ");
 }
