@@ -405,7 +405,7 @@ function RdComparisonChart({
               );
             }}
           />
-          <Bar dataKey="pct" radius={[0, 4, 4, 0]} isAnimationActive={false} label={{ position: "right", formatter: (v: number) => `${v.toFixed(1)}%`, fontSize: 11, fill: "#71717a" }}>
+          <Bar dataKey="pct" radius={[0, 4, 4, 0]} isAnimationActive={false} label={{ position: "right", formatter: (v: unknown) => typeof v === "number" ? `${v.toFixed(1)}%` : "", fontSize: 11, fill: "#71717a" }}>
             {data.map((entry) => (
               <Cell key={entry.name} fill={entry.color} />
             ))}
