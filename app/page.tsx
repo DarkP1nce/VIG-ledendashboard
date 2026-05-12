@@ -6,6 +6,7 @@ import { companies } from "@/data/companies";
 import {
   ALL_REGIONS,
   getLatestSegments,
+  normalizeTherapeuticArea,
   type Region,
 } from "@/data/segments";
 import { annualRevenueSeries } from "@/lib/aggregate";
@@ -37,7 +38,10 @@ export default async function HomePage() {
         if (found) shares[region] = found.revenueShare;
       }
       for (const ta of latest.therapeuticAreas) {
-        if (ta.revenueShare > 0) areas.push(ta.name);
+        if (ta.revenueShare > 0) {
+          const normalized = normalizeTherapeuticArea(ta.name);
+          if (!areas.includes(normalized)) areas.push(normalized);
+        }
       }
     }
     regionSharesByTicker[c.ticker] = shares;

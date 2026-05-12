@@ -24,6 +24,73 @@ export interface YearlySegments {
   lastUpdated: string;
 }
 
+const THERAPEUTIC_AREA_MAP: Record<string, string> = {
+  // Oncologie
+  "Oncology": "Oncologie",
+  "Oncology (Keytruda)": "Oncologie",
+  "Oncology (Lenvima)": "Oncologie",
+  "Rare Disease & Oncology": "Oncologie",
+  // Immunologie
+  "Immunology": "Immunologie",
+  "Immunology (Dupixent etc.)": "Immunologie",
+  "Inflammation": "Immunologie",
+  "Respiratory & Immunology": "Immunologie",
+  // Neurologie
+  "Neuroscience": "Neurologie",
+  "Neurology": "Neurologie",
+  "Multiple Sclerosis": "Neurologie",
+  "Neuroscience (Dysport)": "Neurologie",
+  "Neurology (Leqembi & legacy)": "Neurologie",
+  "Alzheimer's (Leqembi)": "Neurologie",
+  "SMA (Spinraza)": "Neurologie",
+  "Psychiatry": "Neurologie",
+  // Cardiovasculair
+  "Cardiovascular": "Cardiovasculair",
+  "Cardiovascular (Eliquis)": "Cardiovasculair",
+  "Cardiovascular & Metabolism": "Cardiovasculair",
+  "Cardiovascular, Renal & Metabolism": "Cardiovasculair",
+  "Diabetes & Cardiovascular": "Cardiovasculair",
+  // Diabetes & Obesitas
+  "Diabetes Care (GLP-1)": "Diabetes & Obesitas",
+  "Diabetes Care (Insulin)": "Diabetes & Obesitas",
+  "Obesity Care": "Diabetes & Obesitas",
+  "Other Diabetes & Care": "Diabetes & Obesitas",
+  "Diabetes (Insulin)": "Diabetes & Obesitas",
+  "Diabetes & Obesity (Incretins)": "Diabetes & Obesitas",
+  // Zeldzame Ziekten
+  "Rare Disease": "Zeldzame Ziekten",
+  "Rare Diseases": "Zeldzame Ziekten",
+  "Rare Disease & Other": "Zeldzame Ziekten",
+  "Rare Disease (Haemophilia & Growth)": "Zeldzame Ziekten",
+  "Plasma-Derived Therapies": "Zeldzame Ziekten",
+  // Hematologie
+  "Hematology": "Hematologie",
+  // Infectieziekten
+  "Infectious Diseases": "Infectieziekten",
+  "Infectious Diseases & Vaccines": "Infectieziekten",
+  "HIV": "Infectieziekten",
+  "COVID antivirals (Veklury)": "Infectieziekten",
+  "Liver Disease (HCV/HBV)": "Infectieziekten",
+  "Anti-infective": "Infectieziekten",
+  // Vaccins
+  "Vaccines": "Vaccins",
+  "Vaccines & Other": "Vaccins",
+  "Vaccines (Gardasil etc.)": "Vaccins",
+  // Biosimilars
+  "Biosimilars": "Biosimilars",
+  "Other & Biosimilars": "Biosimilars",
+  // Oogheelkunde
+  "Ophthalmology": "Oogheelkunde",
+  "Ophthalmology & Established": "Oogheelkunde",
+  "Eye Care": "Oogheelkunde",
+  // Gastro-enterologie
+  "Gastroenterology": "Gastro-enterologie",
+};
+
+export function normalizeTherapeuticArea(name: string): string {
+  return THERAPEUTIC_AREA_MAP[name] ?? "Overig";
+}
+
 export const segments: Record<string, YearlySegments[]> = {
   PFE: [
     {
