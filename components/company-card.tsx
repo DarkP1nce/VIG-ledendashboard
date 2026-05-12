@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 interface CompanyCardProps {
   company: Company;
   regionShare?: { region: Region; share: number };
+  therapeuticAreaShare?: { name: string; share: number };
   prices?: PricePoint[];
   quote?: CompanyQuote | null;
   rd?: { absolute: number | null; pct: number | null };
@@ -21,6 +22,7 @@ interface CompanyCardProps {
 export function CompanyCard({
   company,
   regionShare,
+  therapeuticAreaShare,
   prices = [],
   quote = null,
   rd,
@@ -59,6 +61,16 @@ export function CompanyCard({
             </p>
             <p className="mt-0.5 font-display text-2xl font-semibold tabular-nums tracking-tight text-vig-navy">
               {regionShare.share}%
+            </p>
+          </div>
+        )}
+        {therapeuticAreaShare && !regionShare && (
+          <div className="mt-5 rounded-xl bg-gradient-to-br from-vig-orange-soft/10 to-vig-orange/5 px-4 py-3">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-vig-orange-dark">
+              Omzet uit {therapeuticAreaShare.name}
+            </p>
+            <p className="mt-0.5 font-display text-2xl font-semibold tabular-nums tracking-tight text-vig-navy">
+              {therapeuticAreaShare.share}%
             </p>
           </div>
         )}

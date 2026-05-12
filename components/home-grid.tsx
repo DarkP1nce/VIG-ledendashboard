@@ -21,6 +21,7 @@ interface HomeGridProps {
   quotesByTicker: Record<string, CompanyQuote | null>;
   pricesByTicker: Record<string, PricePoint[]>;
   therapeuticAreasByTicker: Record<string, string[]>;
+  taSharesByTicker: Record<string, Record<string, number>>;
   rdByTicker: Record<string, { absolute: number | null; pct: number | null }>;
 }
 
@@ -30,6 +31,7 @@ export function HomeGrid({
   quotesByTicker,
   pricesByTicker,
   therapeuticAreasByTicker,
+  taSharesByTicker,
   rdByTicker,
 }: HomeGridProps) {
   const [filters, setFilters] = useState<FilterState>({
@@ -59,6 +61,10 @@ export function HomeGrid({
         const fallbackMatches =
           filters.region !== "all" &&
           getRegionFromCountry(c.country) === filters.region;
+        const taShare =
+          filters.therapeuticArea === "all"
+            ? null
+            : taSharesByTicker[c.ticker]?.[filters.therapeuticArea] ?? null;
         const quote = quotesByTicker[c.ticker];
         const band = classifyMarketCap(quote?.marketCap, c.currency);
         const areas = therapeuticAreasByTicker[c.ticker] ?? [];
@@ -66,6 +72,7 @@ export function HomeGrid({
           company: c,
           explicitShare,
           fallbackMatches,
+          taShare,
           band,
           areas,
         };
@@ -93,6 +100,12 @@ export function HomeGrid({
           if (av !== bv) return bv - av;
           return a.company.shortName.localeCompare(b.company.shortName, "nl");
         }
+        if (filters.therapeuticArea !== "all") {
+          const av = a.taShare ?? -1;
+          const bv = b.taShare ?? -1;
+          if (av !== bv) return bv - av;
+          return a.company.shortName.localeCompare(b.company.shortName, "nl");
+        }
         if (filters.region !== "all") {
           const av = a.explicitShare ?? -1;
           const bv = b.explicitShare ?? -1;
@@ -107,6 +120,8 @@ export function HomeGrid({
     regionSharesByTicker,
     quotesByTicker,
     therapeuticAreasByTicker,
+    taSharesByTicker,
+    rdByTicker,
   ]);
 
   return (
@@ -118,7 +133,7 @@ export function HomeGrid({
       />
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {items.map(({ company, explicitShare }) => (
+        {items.map(({ company, explicitShare, taShare }) => (
           <CompanyCard
             key={company.ticker}
             company={company}
@@ -127,6 +142,11 @@ export function HomeGrid({
               explicitShare !== null &&
               explicitShare > 0
                 ? { region: filters.region as Region, share: explicitShare }
+                : undefined
+            }
+            therapeuticAreaShare={
+              filters.therapeuticArea !== "all" && taShare !== null
+                ? { name: filters.therapeuticArea, share: taShare }
                 : undefined
             }
             prices={pricesByTicker[company.ticker] ?? []}

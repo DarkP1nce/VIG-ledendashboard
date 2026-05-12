@@ -26,10 +26,12 @@ export default async function HomePage() {
     Partial<Record<Region, number>>
   > = {};
   const therapeuticAreasByTicker: Record<string, string[]> = {};
+  const taSharesByTicker: Record<string, Record<string, number>> = {};
   for (const c of companies) {
     const latest = getLatestSegments(c.ticker);
     const shares: Partial<Record<Region, number>> = {};
     const areas: string[] = [];
+    const taShares: Record<string, number> = {};
     if (latest) {
       for (const region of ALL_REGIONS) {
         const found = latest.geographicSegments.find(
@@ -41,11 +43,13 @@ export default async function HomePage() {
         if (ta.revenueShare > 0) {
           const normalized = normalizeTherapeuticArea(ta.name);
           if (!areas.includes(normalized)) areas.push(normalized);
+          taShares[normalized] = (taShares[normalized] ?? 0) + ta.revenueShare;
         }
       }
     }
     regionSharesByTicker[c.ticker] = shares;
     therapeuticAreasByTicker[c.ticker] = areas;
+    taSharesByTicker[c.ticker] = taShares;
   }
 
   const results = await Promise.all(
@@ -143,6 +147,7 @@ export default async function HomePage() {
           quotesByTicker={quotesByTicker}
           pricesByTicker={pricesByTicker}
           therapeuticAreasByTicker={therapeuticAreasByTicker}
+          taSharesByTicker={taSharesByTicker}
           rdByTicker={rdByTicker}
         />
       </section>
