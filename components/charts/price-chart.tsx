@@ -38,7 +38,7 @@ function formatXLabel(dateStr: string, range: Range): string {
 }
 
 export function PriceChart({ prices, currency, color }: PriceChartProps) {
-  const { price, convert } = useFmtAmount(currency);
+  const { price } = useFmtAmount(currency);
   const [range, setRange] = useState<Range>("5j");
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -50,8 +50,8 @@ export function PriceChart({ prices, currency, color }: PriceChartProps) {
     const cutoffStr = cutoff.toISOString().slice(0, 10);
     return prices
       .filter((p) => p.date >= cutoffStr)
-      .map((p) => ({ date: p.date, close: convert(p.close) ?? p.close }));
-  }, [prices, range, convert]);
+      .map((p) => ({ date: p.date, close: p.close }));
+  }, [prices, range]);
 
   const firstClose = data[0]?.close ?? null;
   const lastClose = data[data.length - 1]?.close ?? null;
