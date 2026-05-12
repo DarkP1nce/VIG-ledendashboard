@@ -20,8 +20,8 @@ export function NavLink({
       className={cn(
         "rounded-md px-3 py-1.5 text-sm transition-colors",
         active
-          ? "bg-zinc-100 font-medium text-vig-navy dark:bg-white/10 dark:text-white"
-          : "text-zinc-600 hover:bg-zinc-100/80 hover:text-vig-navy dark:text-zinc-300 dark:hover:bg-white/5 dark:hover:text-zinc-100",
+          ? "bg-white/15 font-medium text-white"
+          : "text-white/60 hover:bg-white/10 hover:text-white",
       )}
     >
       {children}

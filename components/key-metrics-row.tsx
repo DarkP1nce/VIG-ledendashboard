@@ -1,11 +1,13 @@
+"use client";
+
 import { YoYPill } from "@/components/yoy-pill";
 import {
   pickLatestAndPriorAnnual,
   ttmSum,
   yoyPercent,
 } from "@/lib/aggregate";
-import { formatCurrencyCompact } from "@/lib/format";
 import type { IncomeStatementPeriod } from "@/lib/yahoo";
+import { useFmtAmount } from "@/lib/use-fmt-amount";
 
 interface KeyMetricsRowProps {
   annual: IncomeStatementPeriod[];
@@ -18,6 +20,7 @@ export function KeyMetricsRow({
   quarterly,
   currency,
 }: KeyMetricsRowProps) {
+  const { compact } = useFmtAmount(currency);
   const { latest, prior } = pickLatestAndPriorAnnual(annual);
 
   const revenueYoY = yoyPercent(latest?.revenue, prior?.revenue);
@@ -34,7 +37,7 @@ export function KeyMetricsRow({
     <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-zinc-200/70 bg-zinc-200/60 sm:grid-cols-4">
       <Stat
         label="Omzet (jaar)"
-        value={formatCurrencyCompact(latest?.revenue ?? null, currency)}
+        value={compact(latest?.revenue ?? null)}
         pill={<YoYPill value={revenueYoY} />}
         sublabel={
           latest?.endDate
@@ -44,7 +47,7 @@ export function KeyMetricsRow({
       />
       <Stat
         label="Nettowinst (jaar)"
-        value={formatCurrencyCompact(latest?.netIncome ?? null, currency)}
+        value={compact(latest?.netIncome ?? null)}
         pill={<YoYPill value={netIncomeYoY} />}
         sublabel={
           latest?.endDate
@@ -59,10 +62,10 @@ export function KeyMetricsRow({
       />
       <Stat
         label="Omzet TTM"
-        value={ttmRev !== null ? formatCurrencyCompact(ttmRev, currency) : "—"}
+        value={ttmRev !== null ? compact(ttmRev) : "—"}
         sublabel={
           ttmNet !== null
-            ? `Nettowinst ${formatCurrencyCompact(ttmNet, currency)}`
+            ? `Nettowinst ${compact(ttmNet)}`
             : "Laatste 4 kwartalen"
         }
       />

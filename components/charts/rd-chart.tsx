@@ -13,7 +13,8 @@ import {
 } from "recharts";
 
 import type { IncomeStatementPeriod } from "@/lib/yahoo";
-import { formatCurrencyCompact, formatPeriodLabel } from "@/lib/format";
+import { formatPeriodLabel } from "@/lib/format";
+import { useFmtAmount } from "@/lib/use-fmt-amount";
 
 const RD_COLOR = "#7C3AED";
 
@@ -23,6 +24,7 @@ interface RdChartProps {
 }
 
 export function RdChart({ annual, currency }: RdChartProps) {
+  const { compact, effectiveCurrency } = useFmtAmount(currency);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -57,7 +59,7 @@ export function RdChart({ annual, currency }: RdChartProps) {
             R&amp;D-uitgaven (laatste jaar)
           </p>
           <p className="font-display mt-1 text-2xl font-semibold tabular-nums tracking-tight text-vig-navy">
-            {latest ? formatCurrencyCompact(latest.absolute, currency) : "—"}
+            {latest ? compact(latest.absolute) : "—"}
           </p>
         </div>
         <div>
@@ -109,7 +111,7 @@ export function RdChart({ annual, currency }: RdChartProps) {
                     <p className="mt-0.5 text-zinc-600">
                       Absoluut:{" "}
                       <span className="font-medium tabular-nums text-vig-navy">
-                        {formatCurrencyCompact(d.absolute, currency)}
+                        {compact(d.absolute)}
                       </span>
                     </p>
                   </div>
@@ -128,7 +130,7 @@ export function RdChart({ annual, currency }: RdChartProps) {
         </ResponsiveContainer>
       </div>
       <p className="mt-3 text-xs text-zinc-500">
-        R&amp;D als % van omzet per boekjaar. Bedragen in {currency}. Bron: Yahoo Finance.
+        R&amp;D als % van omzet per boekjaar. Bedragen in {effectiveCurrency}. Bron: Yahoo Finance.
       </p>
     </div>
   );

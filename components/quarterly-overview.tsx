@@ -1,4 +1,7 @@
-import { formatCurrencyCompact, formatPeriodLabel } from "@/lib/format";
+"use client";
+
+import { formatPeriodLabel } from "@/lib/format";
+import { useFmtAmount } from "@/lib/use-fmt-amount";
 import type { IncomeStatementPeriod } from "@/lib/yahoo";
 
 interface QuarterlyOverviewProps {
@@ -7,6 +10,7 @@ interface QuarterlyOverviewProps {
 }
 
 export function QuarterlyOverview({ quarterly, currency }: QuarterlyOverviewProps) {
+  const { compact, effectiveCurrency } = useFmtAmount(currency);
   const rows = [...quarterly]
     .filter((q) => q.revenue !== null || q.netIncome !== null)
     .sort((a, b) => b.endDate.localeCompare(a.endDate))
@@ -63,7 +67,7 @@ export function QuarterlyOverview({ quarterly, currency }: QuarterlyOverviewProp
                   )}
                 </td>
                 <td className="py-3 text-right tabular-nums text-vig-navy">
-                  {formatCurrencyCompact(q.revenue, currency)}
+                  {compact(q.revenue)}
                 </td>
                 <td
                   className={`py-3 text-right tabular-nums ${
@@ -72,7 +76,7 @@ export function QuarterlyOverview({ quarterly, currency }: QuarterlyOverviewProp
                       : "text-vig-navy"
                   }`}
                 >
-                  {formatCurrencyCompact(q.netIncome, currency)}
+                  {compact(q.netIncome)}
                 </td>
                 <td
                   className={`py-3 text-right tabular-nums ${
@@ -84,7 +88,7 @@ export function QuarterlyOverview({ quarterly, currency }: QuarterlyOverviewProp
                   {margin !== null ? `${margin.toFixed(1)}%` : "—"}
                 </td>
                 <td className="py-3 text-right tabular-nums text-zinc-600">
-                  {formatCurrencyCompact(q.researchAndDevelopment, currency)}
+                  {compact(q.researchAndDevelopment)}
                 </td>
               </tr>
             );
@@ -92,7 +96,7 @@ export function QuarterlyOverview({ quarterly, currency }: QuarterlyOverviewProp
         </tbody>
       </table>
       <p className="mt-3 text-xs text-zinc-400">
-        Bedragen in {currency}. Bron: Yahoo Finance. Laatste 8 kwartalen.
+        Bedragen in {effectiveCurrency}. Bron: Yahoo Finance. Laatste 8 kwartalen.
       </p>
     </div>
   );

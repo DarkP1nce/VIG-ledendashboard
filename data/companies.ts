@@ -1,4 +1,4 @@
-export type Currency = "USD" | "CHF" | "DKK" | "JPY" | "EUR";
+export type Currency = "USD" | "CHF" | "DKK" | "JPY" | "EUR" | "SEK";
 
 export interface Company {
   slug: string;
@@ -325,6 +325,62 @@ export const companies: Company[] = [
     logoUrl: "https://www.google.com/s2/favicons?domain=takeda.com&sz=128",
   },
   {
+    slug: "almirall",
+    ticker: "ALM.MC",
+    shortName: "Almirall",
+    fullName: "Almirall, S.A.",
+    exchange: "Bolsa de Madrid",
+    country: "Spain",
+    currency: "EUR",
+    headquarters: "Barcelona, Spain",
+    website: "https://www.almirall.com",
+    color: "#D4614E",
+    tradingViewSymbol: "BME:ALM",
+    logoUrl: "https://www.google.com/s2/favicons?domain=almirall.com&sz=128",
+  },
+  {
+    slug: "incyte",
+    ticker: "INCY",
+    shortName: "Incyte",
+    fullName: "Incyte Corporation",
+    exchange: "NASDAQ",
+    country: "United States",
+    currency: "USD",
+    headquarters: "Wilmington, USA",
+    website: "https://www.incyte.com",
+    color: "#7B4F9E",
+    tradingViewSymbol: "NASDAQ:INCY",
+    logoUrl: "https://www.google.com/s2/favicons?domain=incyte.com&sz=128",
+  },
+  {
+    slug: "organon",
+    ticker: "OGN",
+    shortName: "Organon",
+    fullName: "Organon & Co.",
+    exchange: "NYSE",
+    country: "United States",
+    currency: "USD",
+    headquarters: "Jersey City, USA",
+    website: "https://www.organon.com",
+    color: "#3D8A6E",
+    tradingViewSymbol: "NYSE:OGN",
+    logoUrl: "https://www.google.com/s2/favicons?domain=organon.com&sz=128",
+  },
+  {
+    slug: "sobi",
+    ticker: "SOBI.ST",
+    shortName: "Swedish Orphan Biovitrum",
+    fullName: "Swedish Orphan Biovitrum AB",
+    exchange: "Nasdaq Stockholm",
+    country: "Sweden",
+    currency: "SEK",
+    headquarters: "Stockholm, Sweden",
+    website: "https://www.sobi.com",
+    color: "#3B6FA8",
+    tradingViewSymbol: "STO:SOBI",
+    logoUrl: "https://www.google.com/s2/favicons?domain=sobi.com&sz=128",
+  },
+  {
     slug: "ucb",
     ticker: "UCB.BR",
     shortName: "UCB",
@@ -339,6 +395,28 @@ export const companies: Company[] = [
     logoUrl: "https://www.google.com/s2/favicons?domain=ucb.com&sz=128",
   },
 ];
+
+export type HqGroup = "us" | "europe" | "japan" | "other";
+
+const EUROPE_COUNTRIES = new Set([
+  "United Kingdom", "Germany", "France", "Belgium",
+  "Spain", "Switzerland", "Denmark", "Sweden", "Netherlands",
+  "Italy", "Ireland", "Norway", "Finland", "Austria",
+]);
+
+export function getHqGroup(country: string): HqGroup {
+  if (country === "United States") return "us";
+  if (country === "Japan") return "japan";
+  if (EUROPE_COUNTRIES.has(country)) return "europe";
+  return "other";
+}
+
+export const HQ_GROUP_LABELS: Record<HqGroup, string> = {
+  us: "Verenigde Staten",
+  europe: "Europa",
+  japan: "Japan",
+  other: "Overig",
+};
 
 export function getCompanyBySlug(slug: string): Company | undefined {
   return companies.find((c) => c.slug === slug.toLowerCase());

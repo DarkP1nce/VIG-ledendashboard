@@ -12,18 +12,27 @@ import {
   type Region,
 } from "@/data/segments";
 import {
-  MARKET_CAP_LABELS,
-  type MarketCapBand,
-} from "@/lib/fx";
+  HQ_GROUP_LABELS,
+  type HqGroup,
+} from "@/data/companies";
 
 export type RegionFilterValue = Region | "all";
-export type RdSort = "none" | "pct" | "absolute";
+export type SortOption =
+  | "none"
+  | "revenue"
+  | "marketcap"
+  | "price52w"
+  | "netmargin"
+  | "rd-pct"
+  | "rd-absolute";
+export type RdSortOption = "none" | "rd-pct" | "rd-absolute";
+export type HqRegionFilter = HqGroup | "all";
 
 export interface FilterState {
   region: RegionFilterValue;
-  marketCap: MarketCapBand;
   therapeuticArea: string;
-  rdSort: RdSort;
+  sort: SortOption;
+  hqRegion: HqRegionFilter;
 }
 
 interface FilterBarProps {
@@ -42,70 +51,81 @@ export function FilterBar({
     ...ALL_REGIONS.map((r) => ({ value: r, label: REGION_LABELS_NL[r] })),
   ];
 
-  const capOptions: FilterOption<MarketCapBand>[] = (
-    Object.keys(MARKET_CAP_LABELS) as MarketCapBand[]
-  ).map((band) => ({ value: band, label: MARKET_CAP_LABELS[band] }));
-
   const taOptions: FilterOption<string>[] = [
     { value: "all", label: "Alle ziektegebieden" },
     ...therapeuticAreas.map((name) => ({ value: name, label: name })),
   ];
 
+  const sortOptions: FilterOption<SortOption>[] = [
+    { value: "none", label: "Alfabetisch" },
+    { value: "revenue", label: "Omzet", hint: "Hoogste omzet eerst" },
+    { value: "marketcap", label: "Marktwaarde", hint: "Grootste bedrijf eerst" },
+    { value: "price52w", label: "Koers 52w", hint: "Beste prestatie eerst" },
+    { value: "netmargin", label: "Nettomarge", hint: "Hoogste marge eerst" },
+  ];
+
+  const rdOptions: FilterOption<RdSortOption>[] = [
+    { value: "none", label: "Niet sorteren" },
+    { value: "rd-pct", label: "% van omzet", hint: "Hoogste percentage eerst" },
+    { value: "rd-absolute", label: "Absoluut bedrag", hint: "Hoogste bedrag eerst" },
+  ];
+
+  const hqOptions: FilterOption<HqRegionFilter>[] = [
+    { value: "all", label: "Alle landen" },
+    { value: "us", label: HQ_GROUP_LABELS.us },
+    { value: "europe", label: HQ_GROUP_LABELS.europe },
+    { value: "japan", label: HQ_GROUP_LABELS.japan },
+    { value: "other", label: HQ_GROUP_LABELS.other },
+  ];
+
   const regionLabel =
-    state.region === "all"
-      ? "Alle"
-      : REGION_LABELS_NL[state.region as Region];
-  const capLabel =
-    state.marketCap === "all"
-      ? "Alle"
-      : state.marketCap === "mega"
-        ? "Mega"
-        : state.marketCap === "large"
-          ? "Groot"
-          : "Midden";
+    state.region === "all" ? "Alle" : REGION_LABELS_NL[state.region as Region];
   const taLabel =
     state.therapeuticArea === "all" ? "Alle" : state.therapeuticArea;
+  const sortLabelMap: Record<SortOption, string> = {
+    none: "Alle",
+    revenue: "Omzet",
+    marketcap: "Marktwaarde",
+    price52w: "Koers 52w",
+    netmargin: "Nettomarge",
+    "rd-pct": "% omzet",
+    "rd-absolute": "Absoluut",
+  };
+  const hqLabel =
+    state.hqRegion === "all" ? "Alle" : HQ_GROUP_LABELS[state.hqRegion as HqGroup];
 
-  const rdOptions: FilterOption<RdSort>[] = [
-    { value: "none", label: "Niet sorteren" },
-    { value: "pct", label: "% van omzet", hint: "Hoogste % eerst" },
-    { value: "absolute", label: "Absoluut bedrag", hint: "Hoogste bedrag eerst" },
-  ];
-  const rdLabel =
-    state.rdSort === "none"
-      ? "Alle"
-      : state.rdSort === "pct"
-        ? "% van omzet"
-        : "Absoluut";
+  const rdValue: RdSortOption =
+    state.sort === "rd-pct" ? "rd-pct"
+    : state.sort === "rd-absolute" ? "rd-absolute"
+    : "none";
+
+  const rdLabel = rdValue === "rd-pct" ? "% omzet" : rdValue === "rd-absolute" ? "Absoluut" : "Alle";
 
   const activeCount = [
     state.region !== "all",
-    state.marketCap !== "all",
     state.therapeuticArea !== "all",
-    state.rdSort !== "none",
+    state.sort !== "none",
+    state.hqRegion !== "all",
   ].filter(Boolean).length;
 
   function reset() {
-    onChange({ region: "all", marketCap: "all", therapeuticArea: "all", rdSort: "none" });
+    onChange({
+      region: "all",
+      therapeuticArea: "all",
+      sort: "none",
+      hqRegion: "all",
+    });
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center justify-center gap-2">
       <FilterPopover<RegionFilterValue>
-        label="Regio"
+        label="Omzetregio"
         selectedLabel={regionLabel}
         isDefault={state.region === "all"}
         options={regionOptions}
         value={state.region}
         onChange={(v) => onChange({ ...state, region: v })}
-      />
-      <FilterPopover<MarketCapBand>
-        label="Markt­waarde"
-        selectedLabel={capLabel}
-        isDefault={state.marketCap === "all"}
-        options={capOptions}
-        value={state.marketCap}
-        onChange={(v) => onChange({ ...state, marketCap: v })}
       />
       <FilterPopover<string>
         label="Ziekte­gebied"
@@ -113,15 +133,31 @@ export function FilterBar({
         isDefault={state.therapeuticArea === "all"}
         options={taOptions}
         value={state.therapeuticArea}
-        onChange={(v) => onChange({ ...state, therapeuticArea: v })}
+        onChange={(v) => onChange({ ...state, therapeuticArea: v, sort: v !== "all" ? "none" : state.sort })}
       />
-      <FilterPopover<RdSort>
+      <FilterPopover<SortOption>
+        label="Volgorde"
+        selectedLabel={sortLabelMap[state.sort]}
+        isDefault={state.sort === "none" || state.sort === "rd-pct" || state.sort === "rd-absolute"}
+        options={sortOptions}
+        value={(state.sort === "rd-pct" || state.sort === "rd-absolute") ? "none" : state.sort}
+        onChange={(v) => onChange({ ...state, sort: v })}
+      />
+      <FilterPopover<RdSortOption>
         label="R&amp;D"
         selectedLabel={rdLabel}
-        isDefault={state.rdSort === "none"}
+        isDefault={rdValue === "none"}
         options={rdOptions}
-        value={state.rdSort}
-        onChange={(v) => onChange({ ...state, rdSort: v })}
+        value={rdValue}
+        onChange={(v) => onChange({ ...state, sort: v === "none" ? "none" : v })}
+      />
+      <FilterPopover<HqRegionFilter>
+        label="Hoofdkantoor"
+        selectedLabel={hqLabel}
+        isDefault={state.hqRegion === "all"}
+        options={hqOptions}
+        value={state.hqRegion}
+        onChange={(v) => onChange({ ...state, hqRegion: v })}
       />
 
       {activeCount > 0 && (

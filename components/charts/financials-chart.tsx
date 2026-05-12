@@ -12,11 +12,8 @@ import {
 } from "recharts";
 
 import type { IncomeStatementPeriod } from "@/lib/yahoo";
-import {
-  formatCompactNumber,
-  formatCurrencyCompact,
-  formatPeriodLabel,
-} from "@/lib/format";
+import { formatCompactNumber, formatPeriodLabel } from "@/lib/format";
+import { useFmtAmount } from "@/lib/use-fmt-amount";
 import { cn } from "@/lib/utils";
 
 type Period = "annual" | "quarterly";
@@ -43,6 +40,7 @@ export function FinancialsChart({
   quarterly,
   currency,
 }: FinancialsChartProps) {
+  const { compact, convert, effectiveCurrency } = useFmtAmount(currency);
   const [period, setPeriod] = useState<Period>("annual");
   const [range, setRange] = useState<Range>("5y");
   const [mounted, setMounted] = useState(false);
@@ -68,10 +66,10 @@ export function FinancialsChart({
           );
     return sliced.map((p) => ({
       label: formatPeriodLabel(p.endDate, period),
-      revenue: p.revenue,
-      netIncome: p.netIncome,
+      revenue: convert(p.revenue),
+      netIncome: convert(p.netIncome),
     }));
-  }, [period, range, annual, quarterly]);
+  }, [period, range, annual, quarterly, convert]);
 
   return (
     <div>
@@ -136,10 +134,7 @@ export function FinancialsChart({
                             {entry.dataKey === "revenue" ? "Omzet" : "Nettowinst"}
                           </span>
                           <span className="ml-auto font-medium tabular-nums text-vig-navy">
-                            {formatCurrencyCompact(
-                              entry.value as number,
-                              currency,
-                            )}
+                            {compact(entry.value as number)}
                           </span>
                         </p>
                       ))}
@@ -170,7 +165,7 @@ export function FinancialsChart({
         )}
       </div>
       <p className="mt-3 text-xs text-zinc-500">
-        Bedragen in {currency}. Bron: Yahoo Finance.
+        Bedragen in {effectiveCurrency}. Bron: Yahoo Finance.
       </p>
     </div>
   );

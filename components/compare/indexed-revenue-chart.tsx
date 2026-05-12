@@ -43,7 +43,7 @@ export function IndexedRevenueChart({
 
   if (rows.length === 0 || validCompanies.length === 0) {
     return (
-      <div className="flex h-[640px] items-center justify-center rounded-xl border border-dashed border-zinc-200 text-sm text-zinc-500">
+      <div className="flex h-[360px] items-center justify-center rounded-xl border border-dashed border-zinc-200 text-sm text-zinc-500 sm:h-[640px]">
         Selecteer minstens twee bedrijven met overlappende jaardata.
       </div>
     );
@@ -51,7 +51,7 @@ export function IndexedRevenueChart({
 
   return (
     <div>
-      <div className="h-[640px] w-full">
+      <div className="h-[360px] w-full sm:h-[640px]">
         {mounted && (
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={rows} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>

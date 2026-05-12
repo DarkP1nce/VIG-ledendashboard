@@ -36,7 +36,7 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label="Schakel donker thema"
       className={cn(
-        "inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 transition-colors hover:border-vig-blue hover:text-vig-blue dark:border-white/10 dark:bg-white/5 dark:text-zinc-300",
+        "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white/70 transition-colors hover:bg-white/20 hover:text-white",
       )}
     >
       {theme === "light" ? (

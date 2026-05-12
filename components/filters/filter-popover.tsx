@@ -2,6 +2,7 @@
 
 import * as Popover from "@radix-ui/react-popover";
 import { Check, ChevronDown } from "lucide-react";
+import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
@@ -31,8 +32,11 @@ export function FilterPopover<T extends string>({
   return (
     <Popover.Root>
       <Popover.Trigger asChild>
-        <button
+        <motion.button
           type="button"
+          whileHover={{ scale: 1.04, y: -1 }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ type: "spring", stiffness: 400, damping: 20 }}
           className={cn(
             "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
             isDefault
@@ -47,7 +51,7 @@ export function FilterPopover<T extends string>({
             {selectedLabel ?? options.find((o) => o.value === value)?.label}
           </span>
           <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-        </button>
+        </motion.button>
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content

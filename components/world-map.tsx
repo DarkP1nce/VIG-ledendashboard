@@ -15,33 +15,37 @@ const GEO_URL =
 
 const COMPANY_COORDS: Record<string, [number, number]> = {
   // Verenigde Staten
-  ABBV:          [-87.9,  42.0],   // North Chicago
-  AMGN:          [-118.9, 34.2],   // Thousand Oaks
-  BIIB:          [-71.1,  42.4],   // Cambridge MA
-  BMY:           [-76.5,  41.5],   // uitgespreid van NJ-cluster
-  GILD:          [-122.3, 37.6],   // Foster City
-  JNJ:           [-74.5,  40.5],   // New Brunswick
-  LLY:           [-86.2,  39.8],   // Indianapolis
-  MRK:           [-72.5,  39.5],   // uitgespreid van NJ-cluster
-  PFE:           [-73.0,  41.2],   // uitgespreid van NJ-cluster
+  ABBV:          [-87.9,  42.0],
+  AMGN:          [-118.9, 34.2],
+  BIIB:          [-71.1,  42.4],
+  BMY:           [-76.5,  41.5],
+  GILD:          [-122.3, 37.6],
+  INCY:          [-75.5,  39.7],
+  JNJ:           [-74.5,  40.5],
+  LLY:           [-86.2,  39.8],
+  MRK:           [-72.5,  39.5],
+  OGN:           [-74.0,  40.2],
+  PFE:           [-73.0,  41.2],
 
   // Europa
-  AZN:           [0.1,    52.2],   // Cambridge UK
-  "BAYN.DE":     [6.9,    51.0],   // Leverkusen
-  GSK:           [-0.8,   51.5],   // Londen
-  "IPN.PA":      [1.5,    49.2],   // uitgespreid van Parijs
-  "HLUN-B.CO":   [11.0,   56.5],   // Denemarken west
-  "NOVN.SW":     [6.5,    48.0],   // uitgespreid van Basel
-  "NOVO-B.CO":   [14.0,   55.8],   // Denemarken oost
-  "RO.SW":       [8.5,    47.0],   // uitgespreid van Basel
-  "SAN.PA":      [2.8,    48.3],   // uitgespreid van Parijs
-  "UCB.BR":      [4.4,    50.8],   // Brussel
+  "ALM.MC":      [2.2,    41.4],
+  AZN:           [0.1,    52.2],
+  "BAYN.DE":     [6.9,    51.0],
+  GSK:           [-0.8,   51.5],
+  "IPN.PA":      [1.5,    49.2],
+  "HLUN-B.CO":   [11.0,   56.5],
+  "NOVN.SW":     [6.5,    48.0],
+  "NOVO-B.CO":   [14.0,   55.8],
+  "RO.SW":       [8.5,    47.0],
+  "SAN.PA":      [2.8,    48.3],
+  "SOBI.ST":     [18.1,   59.3],
+  "UCB.BR":      [4.4,    50.8],
 
-  // Japan — uitgespreid rondom Japan
-  "4503.T":      [136.0,  37.5],   // Astellas
-  "4568.T":      [141.0,  37.5],   // Daiichi Sankyo
-  "4523.T":      [136.0,  34.5],   // Eisai
-  "4502.T":      [141.0,  34.5],   // Takeda
+  // Japan
+  "4503.T":      [136.0,  37.5],
+  "4568.T":      [141.0,  37.5],
+  "4523.T":      [136.0,  34.5],
+  "4502.T":      [141.0,  34.5],
 };
 
 interface TooltipState {
@@ -60,12 +64,9 @@ export function WorldMap({ companies }: WorldMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMounted(true), []);
-  if (!mounted) return <div className="h-[520px]" />;
+  if (!mounted) return <div className="h-[300px] sm:h-[520px]" />;
 
-  function handleEnter(
-    e: React.MouseEvent,
-    company: Company,
-  ) {
+  function handleEnter(e: React.MouseEvent, company: Company) {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
     setTooltip({
@@ -87,7 +88,7 @@ export function WorldMap({ companies }: WorldMapProps) {
   return (
     <div
       ref={containerRef}
-      className="relative h-[520px] w-full overflow-hidden rounded-2xl"
+      className="relative h-[300px] w-full overflow-hidden rounded-2xl sm:h-[520px]"
       onMouseMove={handleMove}
       onMouseLeave={() => setTooltip(null)}
     >

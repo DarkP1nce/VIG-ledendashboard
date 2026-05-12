@@ -9,8 +9,8 @@ import {
   getLatestSegments,
   type Region,
 } from "@/data/segments";
-import { getIncomeStatementAnnual, getQuote } from "@/lib/yahoo";
-import type { CompanyQuote } from "@/lib/yahoo";
+import { getHistoricalPrices5y, getIncomeStatementAnnual, getQuote } from "@/lib/yahoo";
+import type { CompanyQuote, PricePoint } from "@/lib/yahoo";
 
 
 export const revalidate = 43200;
@@ -18,9 +18,10 @@ export const revalidate = 43200;
 export default async function ComparePage() {
   const results = await Promise.all(
     companies.map(async (c) => {
-      const [annual, quote] = await Promise.all([
+      const [annual, quote, prices] = await Promise.all([
         getIncomeStatementAnnual(c.ticker),
         getQuote(c.ticker),
+        getHistoricalPrices5y(c.ticker),
       ]);
       const annualPoints: CompanyAnnualPoint[] = annual.map((p) => ({
         endDate: p.endDate,
@@ -34,6 +35,7 @@ export default async function ComparePage() {
         ticker: c.ticker,
         annual: annualPoints,
         quote,
+        prices,
         rdAbsolute: latestAnnual?.researchAndDevelopment ?? null,
         rdRevenue: latestAnnual?.revenue ?? null,
       };
@@ -42,10 +44,12 @@ export default async function ComparePage() {
 
   const annualByTicker: Record<string, CompanyAnnualPoint[]> = {};
   const quoteByTicker: Record<string, CompanyQuote | null> = {};
+  const pricesByTicker: Record<string, PricePoint[]> = {};
   const rdByTicker: Record<string, { absolute: number | null; pct: number | null }> = {};
   for (const r of results) {
     annualByTicker[r.ticker] = r.annual;
     quoteByTicker[r.ticker] = r.quote;
+    pricesByTicker[r.ticker] = r.prices;
     rdByTicker[r.ticker] = {
       absolute: r.rdAbsolute,
       pct:
@@ -105,6 +109,7 @@ export default async function ComparePage() {
           companies={companies}
           annualByTicker={annualByTicker}
           quoteByTicker={quoteByTicker}
+          pricesByTicker={pricesByTicker}
           regionSharesByTicker={regionSharesByTicker}
           rdByTicker={rdByTicker}
         />

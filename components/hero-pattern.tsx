@@ -11,6 +11,14 @@ export function HeroPattern() {
             "radial-gradient(ellipse at 40% 40%, rgba(242,140,40,0.22) 0%, rgba(47,168,214,0.12) 55%, transparent 80%)",
         }}
       />
+      <div
+        className="absolute right-0 h-[420px] w-[600px] rounded-full blur-3xl"
+        style={{
+          top: "560px",
+          background:
+            "radial-gradient(ellipse at 80% 60%, rgba(242,140,40,0.10) 0%, transparent 70%)",
+        }}
+      />
       <svg
         className="absolute inset-0 h-full w-full opacity-[0.025]"
         xmlns="http://www.w3.org/2000/svg"

@@ -85,6 +85,13 @@ const THERAPEUTIC_AREA_MAP: Record<string, string> = {
   "Eye Care": "Oogheelkunde",
   // Gastro-enterologie
   "Gastroenterology": "Gastro-enterologie",
+  // Dermatologie
+  "Dermatology": "Dermatologie",
+  "Dermatology & Other": "Dermatologie",
+  // Hematologie (alternatieve spellingen)
+  "Haematology": "Hematologie",
+  "Haematology (Coagulation)": "Hematologie",
+  "Coagulation": "Hematologie",
 };
 
 export function normalizeTherapeuticArea(name: string): string {
@@ -565,6 +572,80 @@ export const segments: Record<string, YearlySegments[]> = {
         { region: "Asia-Pacific (excl. Japan)", revenueShare: 17 },
         { region: "Japan", revenueShare: 4 },
         { region: "Latin America", revenueShare: 7 },
+        { region: "Rest of World", revenueShare: 6 },
+      ],
+    },
+  ],
+  "ALM.MC": [
+    {
+      fiscalYear: 2023,
+      source: "Almirall Annual Report 2023 (approximate — verify before publishing)",
+      lastUpdated: "2026-05-12",
+      therapeuticAreas: [
+        { name: "Dermatology", revenueShare: 85 },
+        { name: "Other", revenueShare: 15 },
+      ],
+      geographicSegments: [
+        { region: "Europe", revenueShare: 68 },
+        { region: "North America", revenueShare: 18 },
+        { region: "Asia-Pacific (excl. Japan)", revenueShare: 8 },
+        { region: "Latin America", revenueShare: 4 },
+        { region: "Rest of World", revenueShare: 2 },
+      ],
+    },
+  ],
+  INCY: [
+    {
+      fiscalYear: 2024,
+      source: "Incyte Annual Report 2024 (approximate — verify before publishing)",
+      lastUpdated: "2026-05-12",
+      therapeuticAreas: [
+        { name: "Hematology", revenueShare: 62 },
+        { name: "Immunology", revenueShare: 18 },
+        { name: "Oncology", revenueShare: 14 },
+        { name: "Other", revenueShare: 6 },
+      ],
+      geographicSegments: [
+        { region: "North America", revenueShare: 72 },
+        { region: "Europe", revenueShare: 22 },
+        { region: "Rest of World", revenueShare: 6 },
+      ],
+    },
+  ],
+  OGN: [
+    {
+      fiscalYear: 2024,
+      source: "Organon Annual Report 2024 (approximate — verify before publishing)",
+      lastUpdated: "2026-05-12",
+      therapeuticAreas: [
+        { name: "Established Brands", revenueShare: 50 },
+        { name: "Women's Health", revenueShare: 34 },
+        { name: "Biosimilars", revenueShare: 16 },
+      ],
+      geographicSegments: [
+        { region: "Europe", revenueShare: 30 },
+        { region: "North America", revenueShare: 28 },
+        { region: "Asia-Pacific (excl. Japan)", revenueShare: 22 },
+        { region: "Latin America", revenueShare: 12 },
+        { region: "Rest of World", revenueShare: 8 },
+      ],
+    },
+  ],
+  "SOBI.ST": [
+    {
+      fiscalYear: 2024,
+      source: "SOBI Annual Report 2024 (approximate — verify before publishing)",
+      lastUpdated: "2026-05-12",
+      therapeuticAreas: [
+        { name: "Haematology", revenueShare: 55 },
+        { name: "Immunology", revenueShare: 22 },
+        { name: "Rare Disease", revenueShare: 15 },
+        { name: "Other", revenueShare: 8 },
+      ],
+      geographicSegments: [
+        { region: "Europe", revenueShare: 57 },
+        { region: "North America", revenueShare: 28 },
+        { region: "Asia-Pacific (excl. Japan)", revenueShare: 9 },
         { region: "Rest of World", revenueShare: 6 },
       ],
     },

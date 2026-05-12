@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 
-import { formatCurrencyPrice } from "@/lib/format";
+import { useFmtAmount } from "@/lib/use-fmt-amount";
 import { cn } from "@/lib/utils";
 import type { PricePoint } from "@/lib/yahoo";
 
@@ -38,6 +38,7 @@ function formatXLabel(dateStr: string, range: Range): string {
 }
 
 export function PriceChart({ prices, currency, color }: PriceChartProps) {
+  const { price, convert } = useFmtAmount(currency);
   const [range, setRange] = useState<Range>("5j");
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -49,8 +50,8 @@ export function PriceChart({ prices, currency, color }: PriceChartProps) {
     const cutoffStr = cutoff.toISOString().slice(0, 10);
     return prices
       .filter((p) => p.date >= cutoffStr)
-      .map((p) => ({ date: p.date, close: p.close }));
-  }, [prices, range]);
+      .map((p) => ({ date: p.date, close: convert(p.close) ?? p.close }));
+  }, [prices, range, convert]);
 
   const firstClose = data[0]?.close ?? null;
   const lastClose = data[data.length - 1]?.close ?? null;
@@ -72,7 +73,7 @@ export function PriceChart({ prices, currency, color }: PriceChartProps) {
         <div className="flex items-baseline gap-3">
           {lastClose !== null && (
             <span className="font-display text-xl font-semibold tabular-nums tracking-tight text-vig-navy">
-              {formatCurrencyPrice(lastClose, currency)}
+              {price(lastClose)}
             </span>
           )}
           {pctChange !== null && (
@@ -135,7 +136,7 @@ export function PriceChart({ prices, currency, color }: PriceChartProps) {
                 tick={{ fill: "#71717a", fontSize: 12 }}
                 width={64}
                 domain={[minClose - padding, maxClose + padding]}
-                tickFormatter={(v: number) => formatCurrencyPrice(v, currency)}
+                tickFormatter={(v: number) => price(v)}
               />
               <Tooltip
                 cursor={{ stroke: "#e4e4e7", strokeWidth: 1 }}
@@ -149,7 +150,7 @@ export function PriceChart({ prices, currency, color }: PriceChartProps) {
                     <div className="rounded-xl border border-zinc-200 bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur">
                       <p className="text-zinc-500">{date}</p>
                       <p className="mt-1 font-medium tabular-nums text-vig-navy">
-                        {formatCurrencyPrice(d.close, currency)}
+                        {price(d.close)}
                       </p>
                     </div>
                   );

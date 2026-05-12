@@ -16,12 +16,14 @@ import {
   IndexedRevenueChart,
   type CompanyAnnualData,
 } from "@/components/compare/indexed-revenue-chart";
+import { IndexedPriceChart } from "@/components/compare/indexed-price-chart";
 import { CompanyMonogram } from "@/components/company-monogram";
 import { CsvExportButton } from "@/components/csv-export-button";
 import { RegionFilter, type RegionSelection } from "@/components/region-filter";
 import type { Company } from "@/data/companies";
 import { REGION_LABELS_NL, type Region } from "@/data/segments";
-import type { CompanyQuote } from "@/lib/yahoo";
+import { toUsdEquivalent } from "@/lib/fx";
+import type { CompanyQuote, PricePoint } from "@/lib/yahoo";
 import {
   formatCurrencyCompact,
   formatPercentChange,
@@ -32,6 +34,7 @@ interface ComparisonViewProps {
   companies: Company[];
   annualByTicker: Record<string, CompanyAnnualData["data"]>;
   quoteByTicker: Record<string, CompanyQuote | null>;
+  pricesByTicker: Record<string, PricePoint[]>;
   regionSharesByTicker: Record<string, Partial<Record<Region, number>>>;
   rdByTicker: Record<string, { absolute: number | null; pct: number | null }>;
 }
@@ -40,6 +43,7 @@ export function ComparisonView({
   companies,
   annualByTicker,
   quoteByTicker,
+  pricesByTicker,
   regionSharesByTicker,
   rdByTicker,
 }: ComparisonViewProps) {
@@ -110,7 +114,7 @@ export function ComparisonView({
 
   return (
     <div>
-      <section className="flex items-center justify-between gap-4">
+      <section className="flex flex-wrap items-center justify-between gap-3">
         <RegionFilter value={region} onChange={setRegion} />
         <CsvExportButton rows={csvRows} filename="vig-vergelijking.csv" label="Exporteer CSV" />
       </section>
@@ -198,6 +202,21 @@ export function ComparisonView({
 
       <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
         <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+          Koersprestatie vergeleken
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Geïndexeerde beurskoers — basisjaar = 100. Cross-currency vergelijking.
+        </p>
+        <div className="mt-6">
+          <IndexedPriceChart
+            companies={selectedCompanies}
+            pricesByTicker={pricesByTicker}
+          />
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
+        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
           R&amp;D-uitgaven vergeleken
         </h2>
         <p className="mt-1 text-sm text-zinc-500">
@@ -205,6 +224,30 @@ export function ComparisonView({
         </p>
         <div className="mt-6">
           <RdComparisonChart companies={selectedCompanies} rdByTicker={rdByTicker} />
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
+        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+          Nettomarge vergeleken
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Nettowinst als % van de omzet — meest recente jaarcijfers.
+        </p>
+        <div className="mt-6">
+          <NetMarginChart companies={selectedCompanies} annualByTicker={annualByTicker} />
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
+        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+          Marktwaarde vergeleken
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Marktkapitalisatie omgerekend naar USD equivalent.
+        </p>
+        <div className="mt-6">
+          <MarketCapChart companies={selectedCompanies} quoteByTicker={quoteByTicker} />
         </div>
       </section>
 
@@ -383,10 +426,12 @@ function RdComparisonChart({
     );
   }
 
-  if (!mounted) return <div className="h-[520px]" />;
+  const chartHeight = Math.max(320, data.length * 28 + 60);
+
+  if (!mounted) return <div style={{ height: chartHeight }} />;
 
   return (
-    <div className="h-[520px] w-full">
+    <div style={{ height: chartHeight }} className="w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
@@ -429,6 +474,199 @@ function RdComparisonChart({
             }}
           />
           <Bar dataKey="pct" radius={[0, 4, 4, 0]} isAnimationActive={false} label={{ position: "right", formatter: (v: unknown) => typeof v === "number" ? `${v.toFixed(1)}%` : "", fontSize: 11, fill: "#71717a" }}>
+            {data.map((entry) => (
+              <Cell key={entry.name} fill={entry.color} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function NetMarginChart({
+  companies,
+  annualByTicker,
+}: {
+  companies: Company[];
+  annualByTicker: Record<string, CompanyAnnualData["data"]>;
+}) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const data = companies
+    .map((c) => {
+      const { latest, netIncome } = pickLatestAndPrior(annualByTicker[c.ticker] ?? []);
+      const margin =
+        latest && netIncome !== null && latest !== 0
+          ? (netIncome / latest) * 100
+          : null;
+      return { name: c.shortName, margin, color: c.color };
+    })
+    .filter((d) => d.margin !== null)
+    .sort((a, b) => (b.margin ?? 0) - (a.margin ?? 0));
+
+  const chartHeight = Math.max(280, data.length * 28 + 60);
+
+  if (data.length === 0)
+    return <p className="text-sm text-zinc-500">Geen data beschikbaar.</p>;
+
+  if (!mounted) return <div style={{ height: chartHeight }} />;
+
+  return (
+    <div style={{ height: chartHeight }} className="w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data}
+          layout="vertical"
+          margin={{ top: 0, right: 56, left: 0, bottom: 0 }}
+          barCategoryGap="25%"
+        >
+          <XAxis
+            type="number"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#71717a", fontSize: 11 }}
+            tickFormatter={(v: number) => `${v.toFixed(0)}%`}
+            domain={["dataMin - 2", "dataMax + 2"]}
+          />
+          <YAxis
+            type="category"
+            dataKey="name"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#71717a", fontSize: 12 }}
+            width={110}
+          />
+          <Tooltip
+            cursor={{ fill: "#f4f4f5" }}
+            content={({ active, payload }) => {
+              if (!active || !payload || payload.length === 0) return null;
+              const d = payload[0]?.payload as (typeof data)[0];
+              return (
+                <div className="rounded-xl border border-zinc-200 bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur">
+                  <p className="font-medium text-vig-navy">{d.name}</p>
+                  <p className="mt-1 text-zinc-600">
+                    Nettomarge:{" "}
+                    <span className="font-medium text-vig-navy">
+                      {d.margin?.toFixed(1)}%
+                    </span>
+                  </p>
+                </div>
+              );
+            }}
+          />
+          <Bar
+            dataKey="margin"
+            radius={[0, 4, 4, 0]}
+            isAnimationActive={false}
+            label={{
+              position: "right",
+              formatter: (v: unknown) =>
+                typeof v === "number" ? `${v.toFixed(1)}%` : "",
+              fontSize: 11,
+              fill: "#71717a",
+            }}
+          >
+            {data.map((entry) => (
+              <Cell key={entry.name} fill={entry.color} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function MarketCapChart({
+  companies,
+  quoteByTicker,
+}: {
+  companies: Company[];
+  quoteByTicker: Record<string, CompanyQuote | null>;
+}) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const data = companies
+    .map((c) => {
+      const quote = quoteByTicker[c.ticker];
+      const usd =
+        quote?.marketCap != null
+          ? toUsdEquivalent(quote.marketCap, c.currency)
+          : null;
+      return { name: c.shortName, usd, color: c.color };
+    })
+    .filter((d) => d.usd !== null)
+    .sort((a, b) => (b.usd ?? 0) - (a.usd ?? 0));
+
+  const chartHeight = Math.max(280, data.length * 28 + 60);
+
+  function fmtUsd(v: number) {
+    if (v >= 1e12) return `$${(v / 1e12).toFixed(1)}T`;
+    if (v >= 1e9) return `$${(v / 1e9).toFixed(0)}B`;
+    return `$${(v / 1e6).toFixed(0)}M`;
+  }
+
+  if (data.length === 0)
+    return <p className="text-sm text-zinc-500">Geen data beschikbaar.</p>;
+
+  if (!mounted) return <div style={{ height: chartHeight }} />;
+
+  return (
+    <div style={{ height: chartHeight }} className="w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data}
+          layout="vertical"
+          margin={{ top: 0, right: 72, left: 0, bottom: 0 }}
+          barCategoryGap="25%"
+        >
+          <XAxis
+            type="number"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#71717a", fontSize: 11 }}
+            tickFormatter={(v: number) => fmtUsd(v)}
+          />
+          <YAxis
+            type="category"
+            dataKey="name"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#71717a", fontSize: 12 }}
+            width={110}
+          />
+          <Tooltip
+            cursor={{ fill: "#f4f4f5" }}
+            content={({ active, payload }) => {
+              if (!active || !payload || payload.length === 0) return null;
+              const d = payload[0]?.payload as (typeof data)[0];
+              return (
+                <div className="rounded-xl border border-zinc-200 bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur">
+                  <p className="font-medium text-vig-navy">{d.name}</p>
+                  <p className="mt-1 text-zinc-600">
+                    Marktwaarde:{" "}
+                    <span className="font-medium text-vig-navy">
+                      {fmtUsd(d.usd ?? 0)} USD
+                    </span>
+                  </p>
+                </div>
+              );
+            }}
+          />
+          <Bar
+            dataKey="usd"
+            radius={[0, 4, 4, 0]}
+            isAnimationActive={false}
+            label={{
+              position: "right",
+              formatter: (v: unknown) =>
+                typeof v === "number" ? fmtUsd(v) : "",
+              fontSize: 11,
+              fill: "#71717a",
+            }}
+          >
             {data.map((entry) => (
               <Cell key={entry.name} fill={entry.color} />
             ))}

@@ -1,11 +1,10 @@
+"use client";
+
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 import type { CompanyQuote } from "@/lib/yahoo";
-import {
-  formatCurrencyCompact,
-  formatCurrencyPrice,
-  formatPercentChange,
-} from "@/lib/format";
+import { formatPercentChange } from "@/lib/format";
+import { useFmtAmount } from "@/lib/use-fmt-amount";
 import { cn } from "@/lib/utils";
 
 interface QuoteTileProps {
@@ -14,6 +13,7 @@ interface QuoteTileProps {
 }
 
 export function QuoteTile({ quote, currency }: QuoteTileProps) {
+  const { compact, price } = useFmtAmount(currency);
   if (!quote || quote.regularMarketPrice === null) {
     return (
       <div className="flex h-full flex-col rounded-2xl border bg-white p-6 shadow-card">
@@ -36,7 +36,7 @@ export function QuoteTile({ quote, currency }: QuoteTileProps) {
         Huidige koers
       </p>
       <p className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-vig-navy">
-        {formatCurrencyPrice(quote.regularMarketPrice, currency)}
+        {price(quote.regularMarketPrice)}
       </p>
       {change !== null && (
         <p
@@ -56,13 +56,13 @@ export function QuoteTile({ quote, currency }: QuoteTileProps) {
 
       <dl className="mt-6 space-y-2 border-t border-zinc-100 pt-4 text-sm">
         <Row label="Marktwaarde">
-          {formatCurrencyCompact(quote.marketCap, currency)}
+          {compact(quote.marketCap)}
         </Row>
         <Row label="52w hoog">
-          {formatCurrencyPrice(quote.fiftyTwoWeekHigh, currency)}
+          {price(quote.fiftyTwoWeekHigh)}
         </Row>
         <Row label="52w laag">
-          {formatCurrencyPrice(quote.fiftyTwoWeekLow, currency)}
+          {price(quote.fiftyTwoWeekLow)}
         </Row>
       </dl>
     </div>

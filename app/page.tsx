@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { AnimatedStat } from "@/components/animated-stat";
 import { HeroPattern } from "@/components/hero-pattern";
 import { HomeGrid } from "@/components/home-grid";
@@ -69,6 +70,8 @@ export default async function HomePage() {
         prices,
         rdAbsolute: latestAnnual?.researchAndDevelopment ?? null,
         rdRevenue: latestAnnual?.revenue ?? null,
+        latestRevenue: latestAnnual?.revenue ?? null,
+        netIncome: latestAnnual?.netIncome ?? null,
       };
     }),
   );
@@ -77,10 +80,13 @@ export default async function HomePage() {
   const quotesByTicker: Record<string, CompanyQuote | null> = {};
   const pricesByTicker: Record<string, PricePoint[]> = {};
   const rdByTicker: Record<string, { absolute: number | null; pct: number | null }> = {};
+  const latestRevenueByTicker: Record<string, number | null> = {};
+  const netMarginByTicker: Record<string, number | null> = {};
   for (const r of results) {
     revenueSeriesByTicker[r.ticker] = r.revenueSeries;
     quotesByTicker[r.ticker] = r.quote;
     pricesByTicker[r.ticker] = r.prices;
+    latestRevenueByTicker[r.ticker] = r.latestRevenue;
     rdByTicker[r.ticker] = {
       absolute: r.rdAbsolute,
       pct:
@@ -88,6 +94,10 @@ export default async function HomePage() {
           ? (r.rdAbsolute / r.rdRevenue) * 100
           : null,
     };
+    netMarginByTicker[r.ticker] =
+      r.netIncome !== null && r.latestRevenue !== null && r.latestRevenue > 0
+        ? (r.netIncome / r.latestRevenue) * 100
+        : null;
   }
 
   const rdPcts = Object.values(rdByTicker)
@@ -101,9 +111,9 @@ export default async function HomePage() {
   return (
     <div className="relative">
       <HeroPattern />
-      <section className="mx-auto max-w-3xl text-center">
+      <section className="mx-auto max-w-3xl text-center pt-20">
         <div className="flex items-center justify-center gap-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-vig-orange">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-vig-orange">
             Vereniging Innovatieve Geneesmiddelen
           </p>
         </div>
@@ -115,7 +125,7 @@ export default async function HomePage() {
         </p>
       </section>
 
-      <section className="mx-auto mt-12 grid max-w-3xl grid-cols-3 gap-8 border-t border-zinc-100 pt-10">
+      <section className="mx-auto mt-12 grid max-w-3xl grid-cols-3 gap-4 border-t border-zinc-100 pt-10 sm:gap-8">
         <AnimatedStat
           value={companies.length}
           label="Beursgenoteerde leden"
@@ -135,20 +145,40 @@ export default async function HomePage() {
         />
       </section>
 
-      <section className="mt-10">
+      <section className="mt-4 flex items-center justify-center gap-1.5 text-xs text-zinc-400">
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
+        Koersen bijgewerkt op{" "}
+        {new Date().toLocaleDateString("nl-NL", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })}{" "}
+        om{" "}
+        {new Date().toLocaleTimeString("nl-NL", {
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: "Europe/Amsterdam",
+        })}
+      </section>
+
+      <section className="mt-6">
         <WorldMap companies={companies} />
       </section>
 
       <section className="mt-16">
-        <HomeGrid
-          companies={companies}
-          regionSharesByTicker={regionSharesByTicker}
-          quotesByTicker={quotesByTicker}
-          pricesByTicker={pricesByTicker}
-          therapeuticAreasByTicker={therapeuticAreasByTicker}
-          taSharesByTicker={taSharesByTicker}
-          rdByTicker={rdByTicker}
-        />
+        <Suspense>
+          <HomeGrid
+            companies={companies}
+            regionSharesByTicker={regionSharesByTicker}
+            quotesByTicker={quotesByTicker}
+            pricesByTicker={pricesByTicker}
+            therapeuticAreasByTicker={therapeuticAreasByTicker}
+            taSharesByTicker={taSharesByTicker}
+            rdByTicker={rdByTicker}
+            latestRevenueByTicker={latestRevenueByTicker}
+            netMarginByTicker={netMarginByTicker}
+          />
+        </Suspense>
       </section>
     </div>
   );

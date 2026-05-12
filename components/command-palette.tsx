@@ -38,12 +38,12 @@ export function CommandPalette({ companies }: CommandPaletteProps) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-500 transition-colors hover:border-vig-blue hover:text-vig-blue dark:border-white/10 dark:bg-white/5"
+        className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs text-white/70 transition-colors hover:bg-white/20 hover:text-white"
         aria-label="Zoeken"
       >
         <Search className="h-3.5 w-3.5" />
         <span className="hidden sm:inline">Zoeken</span>
-        <kbd className="ml-2 hidden rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[10px] text-zinc-600 sm:inline dark:bg-white/10 dark:text-zinc-300">
+        <kbd className="ml-2 hidden rounded bg-white/15 px-1.5 py-0.5 font-mono text-[10px] text-white/60 sm:inline">
           ⌘K
         </kbd>
       </button>

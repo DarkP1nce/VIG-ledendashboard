@@ -7,11 +7,31 @@ export const TO_USD: Record<string, number> = {
   CHF: 1.1,
   DKK: 0.14,
   JPY: 0.0067,
+  SEK: 0.095,
 };
+
+export type DisplayCurrency = "USD" | "EUR" | "original";
 
 export function toUsdEquivalent(value: number, currency: string): number {
   const rate = TO_USD[currency] ?? 1;
   return value * rate;
+}
+
+export function convertAmount(
+  value: number,
+  fromCurrency: string,
+  displayCurrency: DisplayCurrency,
+): { amount: number; currency: string; converted: boolean } {
+  if (displayCurrency === "original" || displayCurrency === fromCurrency) {
+    return { amount: value, currency: fromCurrency, converted: false };
+  }
+  const usd = toUsdEquivalent(value, fromCurrency);
+  if (displayCurrency === "USD") {
+    return { amount: usd, currency: "USD", converted: fromCurrency !== "USD" };
+  }
+  // EUR
+  const eurRate = TO_USD["EUR"] ?? 1.05;
+  return { amount: usd / eurRate, currency: "EUR", converted: fromCurrency !== "EUR" };
 }
 
 export type MarketCapBand = "all" | "mega" | "large" | "mid";

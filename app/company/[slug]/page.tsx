@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
@@ -19,15 +20,33 @@ import {
   getQuote,
 } from "@/lib/yahoo";
 
+interface PageProps {
+  params: { slug: string };
+}
+
 export function generateStaticParams() {
   return companies.map((c) => ({ slug: c.slug }));
 }
 
-export const revalidate = 43200;
-
-interface PageProps {
-  params: { slug: string };
+export function generateMetadata({ params }: PageProps): Metadata {
+  const company = getCompanyBySlug(params.slug);
+  if (!company) return {};
+  return {
+    title: company.fullName,
+    description: `Financiële data voor ${company.fullName} (${company.ticker}): omzet, nettowinst, R&D-investeringen en beurskoers.`,
+    openGraph: {
+      title: `${company.fullName} · VIG Ledendashboard`,
+      description: `Financiële data voor ${company.fullName} (${company.ticker}): omzet, nettowinst, R&D-investeringen en beurskoers.`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${company.fullName} · VIG Ledendashboard`,
+      description: `Financiële data voor ${company.fullName} (${company.ticker}): omzet, nettowinst, R&D-investeringen en beurskoers.`,
+    },
+  };
 }
+
+export const revalidate = 43200;
 
 export default async function CompanyDetailPage({ params }: PageProps) {
   const company = getCompanyBySlug(params.slug);
