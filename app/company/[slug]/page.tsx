@@ -2,10 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 
+import { PriceChart } from "@/components/charts/price-chart";
 import { RdChart } from "@/components/charts/rd-chart";
 import { QuoteTile } from "@/components/charts/quote-tile";
 import { SegmentPie } from "@/components/charts/segment-pie";
-import { TradingViewAdvanced } from "@/components/charts/tradingview-advanced";
 import { CompanyMonogram } from "@/components/company-monogram";
 import { CsvExportButton } from "@/components/csv-export-button";
 import { FinancialsTabs } from "@/components/financials-tabs";
@@ -13,6 +13,7 @@ import { KeyMetricsRow } from "@/components/key-metrics-row";
 import { companies, getCompanyBySlug } from "@/data/companies";
 import { getLatestSegments } from "@/data/segments";
 import {
+  getHistoricalPrices5y,
   getIncomeStatementAnnual,
   getIncomeStatementQuarterly,
   getQuote,
@@ -32,10 +33,11 @@ export default async function CompanyDetailPage({ params }: PageProps) {
   const company = getCompanyBySlug(params.slug);
   if (!company) notFound();
 
-  const [quote, annual, quarterly] = await Promise.all([
+  const [quote, annual, quarterly, prices] = await Promise.all([
     getQuote(company.ticker),
     getIncomeStatementAnnual(company.ticker),
     getIncomeStatementQuarterly(company.ticker),
+    getHistoricalPrices5y(company.ticker),
   ]);
 
   const latest = getLatestSegments(company.ticker);
@@ -132,25 +134,18 @@ export default async function CompanyDetailPage({ params }: PageProps) {
         </div>
       </section>
 
-      {company.tradingViewSymbol && (
-        <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-              Koersgrafiek (TradingView)
-            </h2>
-            <span className="text-[10px] text-zinc-400">
-              Interactief · candlesticks · technische indicatoren
-            </span>
-          </div>
-          <div className="mt-4">
-            <TradingViewAdvanced
-              key={company.tradingViewSymbol}
-              symbol={company.tradingViewSymbol}
-              height={680}
-            />
-          </div>
-        </section>
-      )}
+      <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
+        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+          Beurskoers
+        </h2>
+        <div className="mt-4">
+          <PriceChart
+            prices={prices}
+            currency={company.currency}
+            color={company.color}
+          />
+        </div>
+      </section>
 
       <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border bg-white p-6 shadow-card">

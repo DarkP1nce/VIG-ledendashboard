@@ -181,3 +181,9 @@ export const getHistoricalPrices52w = unstable_cache(
   ["yahoo-historical-52w"],
   { revalidate: TWELVE_HOURS, tags: ["yahoo"] },
 );
+
+export const getHistoricalPrices5y = unstable_cache(
+  async (ticker: string) => fetchHistoricalCloses(ticker, 260),
+  ["yahoo-historical-5y"],
+  { revalidate: TWELVE_HOURS, tags: ["yahoo"] },
+);
