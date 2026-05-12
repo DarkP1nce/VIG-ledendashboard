@@ -96,10 +96,11 @@ export function WorldMap({ companies }: WorldMapProps) {
         style={{ width: "100%", height: "100%" }}
       >
         <Geographies geography={GEO_URL}>
-          {({ geographies }) =>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          {({ geographies }: { geographies: Record<string, unknown>[] }) =>
             geographies.map((geo) => (
               <Geography
-                key={geo.rsmKey}
+                key={geo.rsmKey as string}
                 geography={geo}
                 fill="#E4EBF0"
                 stroke="#C8D6DF"
