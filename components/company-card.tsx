@@ -73,37 +73,33 @@ export function CompanyCard({
             : formatCurrencyCompact(rd?.absolute ?? null, company.currency);
           const dual = primaryLabel && highlightRd;
 
-          return (
+          return dual ? (
+            <div className="mt-5 space-y-1.5">
+              <div className="flex items-center justify-between gap-2 rounded-lg bg-gradient-to-r from-vig-orange-soft/10 to-vig-orange/5 px-3 py-2">
+                <p className="min-w-0 truncate text-[10px] font-medium uppercase tracking-wider text-vig-orange-dark">
+                  {primaryLabel}
+                </p>
+                <p className="shrink-0 font-display text-base font-semibold tabular-nums tracking-tight text-vig-navy">
+                  {primaryValue}
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-2 rounded-lg bg-violet-50/70 px-3 py-2">
+                <p className="min-w-0 truncate text-[10px] font-medium uppercase tracking-wider text-violet-500">
+                  {rdLabel}
+                </p>
+                <p className="shrink-0 font-display text-base font-semibold tabular-nums tracking-tight text-vig-navy">
+                  {rdValue}
+                </p>
+              </div>
+            </div>
+          ) : (
             <div className="mt-5 rounded-xl bg-gradient-to-br from-vig-orange-soft/10 to-vig-orange/5 px-4 py-3">
-              {dual ? (
-                <div className="grid grid-cols-2 divide-x divide-vig-orange/20">
-                  <div className="pr-3 min-w-0">
-                    <p className="truncate text-[10px] font-medium uppercase tracking-wider text-vig-orange-dark">
-                      {primaryLabel}
-                    </p>
-                    <p className="mt-0.5 font-display text-xl font-semibold tabular-nums tracking-tight text-vig-navy">
-                      {primaryValue}
-                    </p>
-                  </div>
-                  <div className="pl-3 min-w-0">
-                    <p className="truncate text-[10px] font-medium uppercase tracking-wider text-violet-500">
-                      {rdLabel}
-                    </p>
-                    <p className="mt-0.5 font-display text-xl font-semibold tabular-nums tracking-tight text-vig-navy">
-                      {rdValue}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-vig-orange-dark">
-                    {primaryLabel ?? rdLabel}
-                  </p>
-                  <p className="mt-0.5 font-display text-2xl font-semibold tabular-nums tracking-tight text-vig-navy">
-                    {primaryValue ?? rdValue}
-                  </p>
-                </>
-              )}
+              <p className="text-[11px] font-medium uppercase tracking-wider text-vig-orange-dark">
+                {primaryLabel ?? rdLabel}
+              </p>
+              <p className="mt-0.5 font-display text-2xl font-semibold tabular-nums tracking-tight text-vig-navy">
+                {primaryValue ?? rdValue}
+              </p>
             </div>
           );
         })()}
