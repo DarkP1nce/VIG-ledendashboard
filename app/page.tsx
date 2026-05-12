@@ -103,7 +103,6 @@ export default async function HomePage() {
       <HeroPattern />
       <section className="mx-auto max-w-3xl text-center">
         <div className="flex items-center justify-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-vig-orange" />
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-vig-orange">
             Vereniging Innovatieve Geneesmiddelen
           </p>
