@@ -69,7 +69,7 @@ export const companies: Company[] = [
     headquarters: "Cambridge, UK",
     website: "https://www.astrazeneca.com",
     color: "#C5476B",
-    tradingViewSymbol: "LSE:AZN",
+    tradingViewSymbol: "NASDAQ:AZN",
     logoUrl: "https://www.google.com/s2/favicons?domain=astrazeneca.com&sz=128",
   },
   {
@@ -195,7 +195,7 @@ export const companies: Company[] = [
     headquarters: "Boulogne-Billancourt, France",
     website: "https://www.ipsen.com",
     color: "#7A8842",
-    tradingViewSymbol: "EURONEXT:IPN",
+    tradingViewSymbol: "EPA:IPN",
     logoUrl: "https://www.google.com/s2/favicons?domain=ipsen.com&sz=128",
   },
   {
@@ -223,7 +223,7 @@ export const companies: Company[] = [
     headquarters: "Valby, Denmark",
     website: "https://www.lundbeck.com",
     color: "#4DAD7E",
-    tradingViewSymbol: "OMXCOP:HLUN_B",
+    tradingViewSymbol: "OMXCOP:HLUNB",
     logoUrl: "https://www.google.com/s2/favicons?domain=lundbeck.com&sz=128",
   },
   {
@@ -251,7 +251,7 @@ export const companies: Company[] = [
     headquarters: "Basel, Switzerland",
     website: "https://www.novartis.com",
     color: "#5BB3E0",
-    tradingViewSymbol: "SIX:NOVN",
+    tradingViewSymbol: "VTX:NOVN",
     logoUrl: "https://www.google.com/s2/favicons?domain=novartis.com&sz=128",
   },
   {
@@ -265,7 +265,7 @@ export const companies: Company[] = [
     headquarters: "Bagsværd, Denmark",
     website: "https://www.novonordisk.com",
     color: "#2FA8D6",
-    tradingViewSymbol: "OMXCOP:NOVO_B",
+    tradingViewSymbol: "OMXCOP:NOVOB",
     logoUrl: "https://www.google.com/s2/favicons?domain=novonordisk.com&sz=128",
   },
   {
@@ -293,7 +293,7 @@ export const companies: Company[] = [
     headquarters: "Basel, Switzerland",
     website: "https://www.roche.com",
     color: "#F28C28",
-    tradingViewSymbol: "SIX:RO",
+    tradingViewSymbol: "VTX:ROG",
     logoUrl: "https://www.google.com/s2/favicons?domain=roche.com&sz=128",
   },
   {
@@ -307,7 +307,7 @@ export const companies: Company[] = [
     headquarters: "Paris, France",
     website: "https://www.sanofi.com",
     color: "#5A4B9C",
-    tradingViewSymbol: "EURONEXT:SAN",
+    tradingViewSymbol: "EPA:SAN",
     logoUrl: "https://www.google.com/s2/favicons?domain=sanofi.com&sz=128",
   },
   {
@@ -335,7 +335,7 @@ export const companies: Company[] = [
     headquarters: "Brussels, Belgium",
     website: "https://www.ucb.com",
     color: "#318B8B",
-    tradingViewSymbol: "EURONEXT:UCB",
+    tradingViewSymbol: "EBR:UCB",
     logoUrl: "https://www.google.com/s2/favicons?domain=ucb.com&sz=128",
   },
 ];
