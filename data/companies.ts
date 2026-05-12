@@ -69,7 +69,7 @@ export const companies: Company[] = [
     headquarters: "Cambridge, UK",
     website: "https://www.astrazeneca.com",
     color: "#C5476B",
-    tradingViewSymbol: undefined,
+    tradingViewSymbol: "LSE:AZN",
     logoUrl: "https://www.google.com/s2/favicons?domain=astrazeneca.com&sz=128",
   },
   {
