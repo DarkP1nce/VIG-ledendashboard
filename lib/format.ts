@@ -11,6 +11,7 @@ export function formatCurrencyCompact(
     style: "currency",
     currency,
     notation: "compact",
+    minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   }).format(value);
 }

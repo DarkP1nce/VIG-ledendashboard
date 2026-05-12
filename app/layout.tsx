@@ -29,14 +29,12 @@ export default function RootLayout({
       <body className="min-h-screen bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(47,168,214,0.08),transparent),linear-gradient(to_bottom,#fafafa,#ffffff)] font-sans text-vig-navy antialiased dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(31,106,165,0.18),transparent),linear-gradient(to_bottom,#0b0f1a,#020409)] dark:text-zinc-100">
         <header className="sticky top-0 z-40 border-b border-zinc-200/60 bg-white/70 backdrop-blur-xl dark:border-white/5 dark:bg-zinc-950/60">
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-            <Link href="/" className="group flex items-center gap-2.5">
-              <span className="relative flex h-7 w-7 items-center justify-center rounded-xl bg-vig-navy">
-                <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-vig-blue to-vig-navy" />
-                <span className="relative h-1.5 w-1.5 rounded-full bg-vig-orange" />
-              </span>
-              <span className="text-sm font-semibold tracking-tight text-vig-navy dark:text-zinc-100">
-                VIG Dashboard
-              </span>
+            <Link href="/" className="group flex items-center">
+              <img
+                src="/vig-logo.svg"
+                alt="Vereniging Innovatieve Geneesmiddelen"
+                className="h-16 w-auto dark:invert"
+              />
             </Link>
             <div className="flex items-center gap-2">
               <nav className="hidden items-center gap-1 text-sm sm:flex">
@@ -60,11 +58,21 @@ export default function RootLayout({
               </p>
             </div>
             <p className="mt-3 max-w-3xl text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
-              Geen beleggingsadvies. Data kan vertraagd of onnauwkeurig zijn.
-              Dit dashboard is een informatief overzicht en geen aanbeveling
-              tot koop, verkoop of het aanhouden van financiële instrumenten.
-              Raadpleeg de jaarverslagen van de bedrijven voor officiële
-              cijfers.
+              Dit dashboard is uitsluitend bedoeld ter informatie en vormt geen
+              beleggingsadvies, aanbeveling tot koop of verkoop, of enige andere
+              financiële dienst. Financiële data wordt automatisch opgehaald via
+              Yahoo Finance en kan vertraagd, onvolledig of onnauwkeurig zijn.
+              Koersen, omzetcijfers en R&amp;D-uitgaven zijn gebaseerd op
+              gepubliceerde kwartaal- en jaarverslagen; afwijkingen ten opzichte
+              van officiële bronnen zijn mogelijk. Raadpleeg altijd de
+              jaarverslagen en officiële berichtgeving van de betreffende
+              ondernemingen voor definitieve cijfers. De Vereniging Innovatieve
+              Geneesmiddelen (VIG) aanvaardt geen aansprakelijkheid voor
+              beslissingen genomen op basis van de informatie op dit dashboard.
+            </p>
+            <p className="mt-4 text-xs text-zinc-400 dark:text-zinc-500" suppressHydrationWarning>
+              Data via Yahoo Finance · Verversing elke 12 uur ·{" "}
+              &copy; {new Date().getFullYear()} Vereniging Innovatieve Geneesmiddelen
             </p>
           </div>
         </footer>

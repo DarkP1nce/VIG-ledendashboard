@@ -30,6 +30,7 @@ export interface IncomeStatementPeriod {
   ebitda: number | null;
   basicEps: number | null;
   dilutedEps: number | null;
+  researchAndDevelopment: number | null;
 }
 
 function n(v: unknown): number | null {
@@ -112,6 +113,7 @@ async function fetchIncomeStatement(
       ebitda: n(row.EBITDA) ?? n(row.normalizedEBITDA),
       basicEps: n(row.basicEPS),
       dilutedEps: n(row.dilutedEPS),
+      researchAndDevelopment: n(row.researchAndDevelopment),
     }))
     .filter((p) => p.endDate)
     .sort((a, b) => a.endDate.localeCompare(b.endDate));

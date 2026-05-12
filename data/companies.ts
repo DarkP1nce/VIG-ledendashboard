@@ -28,6 +28,7 @@ export const companies: Company[] = [
     website: "https://www.abbvie.com",
     color: "#BD3D3A",
     tradingViewSymbol: "NYSE:ABBV",
+    logoUrl: "https://www.google.com/s2/favicons?domain=abbvie.com&sz=128",
   },
   {
     slug: "amgen",
@@ -41,6 +42,7 @@ export const companies: Company[] = [
     website: "https://www.amgen.com",
     color: "#D97B47",
     tradingViewSymbol: "NASDAQ:AMGN",
+    logoUrl: "https://www.google.com/s2/favicons?domain=amgen.com&sz=128",
   },
   {
     slug: "astellas",
@@ -54,6 +56,7 @@ export const companies: Company[] = [
     website: "https://www.astellas.com",
     color: "#7D6E5B",
     tradingViewSymbol: "TSE:4503",
+    logoUrl: "https://www.google.com/s2/favicons?domain=astellas.com&sz=128",
   },
   {
     slug: "astrazeneca",
@@ -67,6 +70,7 @@ export const companies: Company[] = [
     website: "https://www.astrazeneca.com",
     color: "#C5476B",
     tradingViewSymbol: "LSE:AZN",
+    logoUrl: "https://www.google.com/s2/favicons?domain=astrazeneca.com&sz=128",
   },
   {
     slug: "bayer",
@@ -80,6 +84,7 @@ export const companies: Company[] = [
     website: "https://www.bayer.com",
     color: "#4A9D6E",
     tradingViewSymbol: "XETR:BAYN",
+    logoUrl: "https://www.google.com/s2/favicons?domain=bayer.com&sz=128",
   },
   {
     slug: "biogen",
@@ -93,6 +98,7 @@ export const companies: Company[] = [
     website: "https://www.biogen.com",
     color: "#8B5CA8",
     tradingViewSymbol: "NASDAQ:BIIB",
+    logoUrl: "https://www.google.com/s2/favicons?domain=biogen.com&sz=128",
   },
   {
     slug: "bristol-myers-squibb",
@@ -106,6 +112,7 @@ export const companies: Company[] = [
     website: "https://www.bms.com",
     color: "#7A4977",
     tradingViewSymbol: "NYSE:BMY",
+    logoUrl: "https://www.google.com/s2/favicons?domain=bms.com&sz=128",
   },
   {
     slug: "daiichi-sankyo",
@@ -119,6 +126,7 @@ export const companies: Company[] = [
     website: "https://www.daiichisankyo.com",
     color: "#B45044",
     tradingViewSymbol: "TSE:4568",
+    logoUrl: "https://www.google.com/s2/favicons?domain=daiichisankyo.com&sz=128",
   },
   {
     slug: "eisai",
@@ -132,6 +140,7 @@ export const companies: Company[] = [
     website: "https://www.eisai.com",
     color: "#6B8AAE",
     tradingViewSymbol: "TSE:4523",
+    logoUrl: "https://www.google.com/s2/favicons?domain=eisai.com&sz=128",
   },
   {
     slug: "eli-lilly",
@@ -145,6 +154,7 @@ export const companies: Company[] = [
     website: "https://www.lilly.com",
     color: "#C13C44",
     tradingViewSymbol: "NYSE:LLY",
+    logoUrl: "https://www.google.com/s2/favicons?domain=lilly.com&sz=128",
   },
   {
     slug: "gilead",
@@ -158,6 +168,7 @@ export const companies: Company[] = [
     website: "https://www.gilead.com",
     color: "#4F758A",
     tradingViewSymbol: "NASDAQ:GILD",
+    logoUrl: "https://www.google.com/s2/favicons?domain=gilead.com&sz=128",
   },
   {
     slug: "gsk",
@@ -171,6 +182,7 @@ export const companies: Company[] = [
     website: "https://www.gsk.com",
     color: "#E58C40",
     tradingViewSymbol: "NYSE:GSK",
+    logoUrl: "https://www.google.com/s2/favicons?domain=gsk.com&sz=128",
   },
   {
     slug: "ipsen",
@@ -184,6 +196,7 @@ export const companies: Company[] = [
     website: "https://www.ipsen.com",
     color: "#7A8842",
     tradingViewSymbol: "EURONEXT:IPN",
+    logoUrl: "https://www.google.com/s2/favicons?domain=ipsen.com&sz=128",
   },
   {
     slug: "johnson-and-johnson",
@@ -197,6 +210,7 @@ export const companies: Company[] = [
     website: "https://www.jnj.com",
     color: "#0B2E4A",
     tradingViewSymbol: "NYSE:JNJ",
+    logoUrl: "https://www.google.com/s2/favicons?domain=jnj.com&sz=128",
   },
   {
     slug: "lundbeck",
@@ -210,6 +224,7 @@ export const companies: Company[] = [
     website: "https://www.lundbeck.com",
     color: "#4DAD7E",
     tradingViewSymbol: "OMXCOP:HLUN_B",
+    logoUrl: "https://www.google.com/s2/favicons?domain=lundbeck.com&sz=128",
   },
   {
     slug: "merck",
@@ -223,6 +238,7 @@ export const companies: Company[] = [
     website: "https://www.merck.com",
     color: "#2E6B5C",
     tradingViewSymbol: "NYSE:MRK",
+    logoUrl: "https://www.google.com/s2/favicons?domain=merck.com&sz=128",
   },
   {
     slug: "novartis",
@@ -236,6 +252,7 @@ export const companies: Company[] = [
     website: "https://www.novartis.com",
     color: "#5BB3E0",
     tradingViewSymbol: "SIX:NOVN",
+    logoUrl: "https://www.google.com/s2/favicons?domain=novartis.com&sz=128",
   },
   {
     slug: "novo-nordisk",
@@ -249,6 +266,7 @@ export const companies: Company[] = [
     website: "https://www.novonordisk.com",
     color: "#2FA8D6",
     tradingViewSymbol: "OMXCOP:NOVO_B",
+    logoUrl: "https://www.google.com/s2/favicons?domain=novonordisk.com&sz=128",
   },
   {
     slug: "pfizer",
@@ -262,6 +280,7 @@ export const companies: Company[] = [
     website: "https://www.pfizer.com",
     color: "#1F6AA5",
     tradingViewSymbol: "NYSE:PFE",
+    logoUrl: "https://www.google.com/s2/favicons?domain=pfizer.com&sz=128",
   },
   {
     slug: "roche",
@@ -275,6 +294,7 @@ export const companies: Company[] = [
     website: "https://www.roche.com",
     color: "#F28C28",
     tradingViewSymbol: "SIX:RO",
+    logoUrl: "https://www.google.com/s2/favicons?domain=roche.com&sz=128",
   },
   {
     slug: "sanofi",
@@ -288,6 +308,7 @@ export const companies: Company[] = [
     website: "https://www.sanofi.com",
     color: "#5A4B9C",
     tradingViewSymbol: "EURONEXT:SAN",
+    logoUrl: "https://www.google.com/s2/favicons?domain=sanofi.com&sz=128",
   },
   {
     slug: "takeda",
@@ -301,6 +322,7 @@ export const companies: Company[] = [
     website: "https://www.takeda.com",
     color: "#124A73",
     tradingViewSymbol: "TSE:4502",
+    logoUrl: "https://www.google.com/s2/favicons?domain=takeda.com&sz=128",
   },
   {
     slug: "ucb",
@@ -314,6 +336,7 @@ export const companies: Company[] = [
     website: "https://www.ucb.com",
     color: "#318B8B",
     tradingViewSymbol: "EURONEXT:UCB",
+    logoUrl: "https://www.google.com/s2/favicons?domain=ucb.com&sz=128",
   },
 ];
 

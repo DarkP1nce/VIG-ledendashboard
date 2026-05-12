@@ -3,12 +3,13 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 
 import { FinancialsChart } from "@/components/charts/financials-chart";
+import { RdChart } from "@/components/charts/rd-chart";
 import { QuoteTile } from "@/components/charts/quote-tile";
 import { SegmentPie } from "@/components/charts/segment-pie";
 import { TradingViewAdvanced } from "@/components/charts/tradingview-advanced";
-import { TradingViewWidget } from "@/components/charts/tradingview-widget";
 import { CompanyMonogram } from "@/components/company-monogram";
 import { CsvExportButton } from "@/components/csv-export-button";
+import { QuarterlyOverview } from "@/components/quarterly-overview";
 import { KeyMetricsRow } from "@/components/key-metrics-row";
 import { companies, getCompanyBySlug } from "@/data/companies";
 import { getLatestSegments } from "@/data/segments";
@@ -135,42 +136,35 @@ export default async function CompanyDetailPage({ params }: PageProps) {
         </div>
       </section>
 
-      {company.tradingViewSymbol && (
-        <>
-          <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
-            <div className="flex items-baseline justify-between">
-              <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-                Koers — 12 maanden
-              </h2>
-              <span className="text-[10px] text-zinc-400">
-                {company.tradingViewSymbol}
-              </span>
-            </div>
-            <div className="mt-4">
-              <TradingViewWidget
-                symbol={company.tradingViewSymbol}
-                height={220}
-              />
-            </div>
-          </section>
+      <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
+        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+          Recente kwartalen
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Omzet, nettowinst, nettomarge en R&amp;D per kwartaal.
+        </p>
+        <div className="mt-6">
+          <QuarterlyOverview quarterly={quarterly} currency={company.currency} />
+        </div>
+      </section>
 
-          <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
-            <div className="flex items-baseline justify-between">
-              <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-                Volledige koers­grafiek (TradingView)
-              </h2>
-              <span className="text-[10px] text-zinc-400">
-                Interactief · candle­sticks · technische indicatoren
-              </span>
-            </div>
-            <div className="mt-4">
-              <TradingViewAdvanced
-                symbol={company.tradingViewSymbol}
-                height={540}
-              />
-            </div>
-          </section>
-        </>
+      {company.tradingViewSymbol && (
+        <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Koersgrafiek (TradingView)
+            </h2>
+            <span className="text-[10px] text-zinc-400">
+              Interactief · candlesticks · technische indicatoren
+            </span>
+          </div>
+          <div className="mt-4">
+            <TradingViewAdvanced
+              symbol={company.tradingViewSymbol}
+              height={680}
+            />
+          </div>
+        </section>
       )}
 
       <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -224,6 +218,18 @@ export default async function CompanyDetailPage({ params }: PageProps) {
               Geen segmentdata beschikbaar.
             </p>
           )}
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
+        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+          R&amp;D-investeringen
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Uitgaven aan onderzoek &amp; ontwikkeling als % van de omzet, per boekjaar.
+        </p>
+        <div className="mt-6">
+          <RdChart annual={annual} currency={company.currency} />
         </div>
       </section>
 

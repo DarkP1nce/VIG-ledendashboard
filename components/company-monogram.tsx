@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 import type { Company } from "@/data/companies";
 import { cn } from "@/lib/utils";
 
@@ -36,9 +40,10 @@ export function CompanyMonogram({
   size = "md",
   className,
 }: CompanyMonogramProps) {
+  const [imgError, setImgError] = useState(false);
   const text = getMonogram(company);
 
-  if (company.logoUrl) {
+  if (company.logoUrl && !imgError) {
     return (
       <span
         className={cn(
@@ -51,6 +56,7 @@ export function CompanyMonogram({
           src={company.logoUrl}
           alt={`${company.shortName} logo`}
           className="h-2/3 w-2/3 object-contain"
+          onError={() => setImgError(true)}
         />
       </span>
     );

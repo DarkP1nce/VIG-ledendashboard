@@ -17,11 +17,13 @@ import {
 } from "@/lib/fx";
 
 export type RegionFilterValue = Region | "all";
+export type RdSort = "none" | "pct" | "absolute";
 
 export interface FilterState {
   region: RegionFilterValue;
   marketCap: MarketCapBand;
   therapeuticArea: string;
+  rdSort: RdSort;
 }
 
 interface FilterBarProps {
@@ -64,14 +66,27 @@ export function FilterBar({
   const taLabel =
     state.therapeuticArea === "all" ? "Alle" : state.therapeuticArea;
 
+  const rdOptions: FilterOption<RdSort>[] = [
+    { value: "none", label: "Niet sorteren" },
+    { value: "pct", label: "% van omzet", hint: "Hoogste % eerst" },
+    { value: "absolute", label: "Absoluut bedrag", hint: "Hoogste bedrag eerst" },
+  ];
+  const rdLabel =
+    state.rdSort === "none"
+      ? "Alle"
+      : state.rdSort === "pct"
+        ? "% van omzet"
+        : "Absoluut";
+
   const activeCount = [
     state.region !== "all",
     state.marketCap !== "all",
     state.therapeuticArea !== "all",
+    state.rdSort !== "none",
   ].filter(Boolean).length;
 
   function reset() {
-    onChange({ region: "all", marketCap: "all", therapeuticArea: "all" });
+    onChange({ region: "all", marketCap: "all", therapeuticArea: "all", rdSort: "none" });
   }
 
   return (
@@ -99,6 +114,14 @@ export function FilterBar({
         options={taOptions}
         value={state.therapeuticArea}
         onChange={(v) => onChange({ ...state, therapeuticArea: v })}
+      />
+      <FilterPopover<RdSort>
+        label="R&amp;D"
+        selectedLabel={rdLabel}
+        isDefault={state.rdSort === "none"}
+        options={rdOptions}
+        value={state.rdSort}
+        onChange={(v) => onChange({ ...state, rdSort: v })}
       />
 
       {activeCount > 0 && (

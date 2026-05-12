@@ -1,5 +1,7 @@
 "use client";
 
+"use client";
+
 import { useMemo, useState } from "react";
 
 import { CompanyCard } from "@/components/company-card";
@@ -7,6 +9,7 @@ import {
   FilterBar,
   type FilterState,
 } from "@/components/filters/filter-bar";
+
 import type { Company } from "@/data/companies";
 import { getRegionFromCountry, type Region } from "@/data/segments";
 import { classifyMarketCap } from "@/lib/fx";
@@ -18,6 +21,7 @@ interface HomeGridProps {
   quotesByTicker: Record<string, CompanyQuote | null>;
   pricesByTicker: Record<string, PricePoint[]>;
   therapeuticAreasByTicker: Record<string, string[]>;
+  rdByTicker: Record<string, { absolute: number | null; pct: number | null }>;
 }
 
 export function HomeGrid({
@@ -26,11 +30,13 @@ export function HomeGrid({
   quotesByTicker,
   pricesByTicker,
   therapeuticAreasByTicker,
+  rdByTicker,
 }: HomeGridProps) {
   const [filters, setFilters] = useState<FilterState>({
     region: "all",
     marketCap: "all",
     therapeuticArea: "all",
+    rdSort: "none",
   });
 
   const allTherapeuticAreas = useMemo(() => {
@@ -79,6 +85,14 @@ export function HomeGrid({
         return true;
       })
       .sort((a, b) => {
+        if (filters.rdSort !== "none") {
+          const aRd = rdByTicker[a.company.ticker];
+          const bRd = rdByTicker[b.company.ticker];
+          const av = filters.rdSort === "pct" ? (aRd?.pct ?? -1) : (aRd?.absolute ?? -1);
+          const bv = filters.rdSort === "pct" ? (bRd?.pct ?? -1) : (bRd?.absolute ?? -1);
+          if (av !== bv) return bv - av;
+          return a.company.shortName.localeCompare(b.company.shortName, "nl");
+        }
         if (filters.region !== "all") {
           const av = a.explicitShare ?? -1;
           const bv = b.explicitShare ?? -1;
@@ -117,6 +131,7 @@ export function HomeGrid({
             }
             prices={pricesByTicker[company.ticker] ?? []}
             quote={quotesByTicker[company.ticker] ?? null}
+            rd={rdByTicker[company.ticker] ?? { absolute: null, pct: null }}
           />
         ))}
       </div>

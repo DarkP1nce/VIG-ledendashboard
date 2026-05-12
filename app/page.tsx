@@ -1,5 +1,7 @@
+import { AnimatedStat } from "@/components/animated-stat";
 import { HeroPattern } from "@/components/hero-pattern";
 import { HomeGrid } from "@/components/home-grid";
+import { WorldMap } from "@/components/world-map";
 import { companies } from "@/data/companies";
 import {
   ALL_REGIONS,
@@ -7,8 +9,6 @@ import {
   type Region,
 } from "@/data/segments";
 import { annualRevenueSeries } from "@/lib/aggregate";
-import { toUsdEquivalent } from "@/lib/fx";
-import { formatCurrencyCompact } from "@/lib/format";
 import {
   getHistoricalPrices52w,
   getIncomeStatementAnnual,
@@ -51,11 +51,16 @@ export default async function HomePage() {
         getQuote(c.ticker),
         getHistoricalPrices52w(c.ticker),
       ]);
+      const latestAnnual = [...annual]
+        .filter((p) => p.revenue !== null)
+        .sort((a, b) => b.endDate.localeCompare(a.endDate))[0] ?? null;
       return {
         ticker: c.ticker,
         revenueSeries: annualRevenueSeries(annual),
         quote,
         prices,
+        rdAbsolute: latestAnnual?.researchAndDevelopment ?? null,
+        rdRevenue: latestAnnual?.revenue ?? null,
       };
     }),
   );
@@ -63,55 +68,68 @@ export default async function HomePage() {
   const revenueSeriesByTicker: Record<string, number[]> = {};
   const quotesByTicker: Record<string, CompanyQuote | null> = {};
   const pricesByTicker: Record<string, PricePoint[]> = {};
+  const rdByTicker: Record<string, { absolute: number | null; pct: number | null }> = {};
   for (const r of results) {
     revenueSeriesByTicker[r.ticker] = r.revenueSeries;
     quotesByTicker[r.ticker] = r.quote;
     pricesByTicker[r.ticker] = r.prices;
+    rdByTicker[r.ticker] = {
+      absolute: r.rdAbsolute,
+      pct:
+        r.rdAbsolute !== null && r.rdRevenue !== null && r.rdRevenue > 0
+          ? (r.rdAbsolute / r.rdRevenue) * 100
+          : null,
+    };
   }
 
-  const latestByCurrency = new Map<string, number>();
-  for (const c of companies) {
-    const series = revenueSeriesByTicker[c.ticker];
-    const latestRevenue = series[series.length - 1];
-    if (latestRevenue !== undefined) {
-      latestByCurrency.set(
-        c.currency,
-        (latestByCurrency.get(c.currency) ?? 0) + latestRevenue,
-      );
-    }
-  }
+  const rdPcts = Object.values(rdByTicker)
+    .map((r) => r.pct)
+    .filter((p): p is number => p !== null);
+  const avgRdPct = rdPcts.length > 0
+    ? rdPcts.reduce((a, b) => a + b, 0) / rdPcts.length
+    : 0;
+  const numCountries = new Set(companies.map((c) => c.country)).size;
 
   return (
     <div className="relative">
       <HeroPattern />
-      <section className="max-w-3xl">
-        <div className="flex items-center gap-2">
+      <section className="mx-auto max-w-3xl text-center">
+        <div className="flex items-center justify-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-vig-orange" />
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-vig-orange">
             Vereniging Innovatieve Geneesmiddelen
           </p>
         </div>
         <h1 className="font-display mt-5 text-5xl font-semibold tracking-tight text-vig-navy sm:text-6xl sm:leading-[1.05]">
-          Beursgenoteerde leden, in één oogopslag.
+          VIG Ledendashboard
         </h1>
-        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-600">
-          Financiële kerncijfers, ziektegebieden en geografische omzet­verdeling
-          van de beursgenoteerde leden van de VIG. Cijfers in eigen valuta.
+        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-zinc-600">
+          Financieel overzicht van de beursgenoteerde leden van de Vereniging Innovatieve Geneesmiddelen. Omzet, nettowinst, R&amp;D-investeringen en geografische omzetverdeling, per kwartaal en per jaar, rechtstreeks uit de markt.
         </p>
       </section>
 
-      <section className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-zinc-200/70 bg-zinc-200/60 sm:grid-cols-3">
-        <Stat label="Leden" value={String(companies.length)} sublabel="In dit dashboard" />
-        <Stat
-          label="Beurzen & valuta's"
-          value={`${new Set(companies.map((c) => c.exchange)).size} · ${new Set(companies.map((c) => c.currency)).size}`}
-          sublabel="Verspreid over markten"
+      <section className="mx-auto mt-12 grid max-w-3xl grid-cols-3 gap-8 border-t border-zinc-100 pt-10">
+        <AnimatedStat
+          value={companies.length}
+          label="Beursgenoteerde leden"
+          sublabel="In dit dashboard"
         />
-        <Stat
-          label="Gecombineerde omzet (jaar)"
-          value={renderCombinedRevenue(latestByCurrency)}
-          sublabel="Som laatste jaarcijfers, eigen valuta"
+        <AnimatedStat
+          value={avgRdPct}
+          suffix="%"
+          decimals={1}
+          label="Gemiddelde R&D-intensiteit"
+          sublabel="Percentage van de omzet"
         />
+        <AnimatedStat
+          value={numCountries}
+          label="Landen vertegenwoordigd"
+          sublabel="VS, Europa en Japan"
+        />
+      </section>
+
+      <section className="mt-10">
+        <WorldMap companies={companies} />
       </section>
 
       <section className="mt-16">
@@ -121,44 +139,10 @@ export default async function HomePage() {
           quotesByTicker={quotesByTicker}
           pricesByTicker={pricesByTicker}
           therapeuticAreasByTicker={therapeuticAreasByTicker}
+          rdByTicker={rdByTicker}
         />
       </section>
     </div>
   );
 }
 
-function Stat({
-  label,
-  value,
-  sublabel,
-}: {
-  label: string;
-  value: string;
-  sublabel?: string;
-}) {
-  return (
-    <div className="bg-white px-6 py-5">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">
-        {label}
-      </p>
-      <p className="font-display mt-2 text-2xl font-semibold tabular-nums tracking-tight text-vig-navy">
-        {value}
-      </p>
-      {sublabel && (
-        <p className="mt-1 text-xs text-zinc-500">{sublabel}</p>
-      )}
-    </div>
-  );
-}
-
-function renderCombinedRevenue(byCurrency: Map<string, number>): string {
-  const entries = Array.from(byCurrency.entries());
-  if (entries.length === 0) return "—";
-  return entries
-    .sort(
-      (a, b) =>
-        toUsdEquivalent(b[1], b[0]) - toUsdEquivalent(a[1], a[0]),
-    )
-    .map(([cur, sum]) => formatCurrencyCompact(sum, cur))
-    .join(" · ");
-}

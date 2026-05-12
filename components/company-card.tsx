@@ -6,7 +6,7 @@ import { CompanyMonogram } from "@/components/company-monogram";
 import { Card } from "@/components/ui/card";
 import type { Company } from "@/data/companies";
 import { REGION_LABELS_NL, type Region } from "@/data/segments";
-import { formatCurrencyPrice, formatPercentChange } from "@/lib/format";
+import { formatCurrencyCompact, formatCurrencyPrice, formatPercentChange } from "@/lib/format";
 import type { CompanyQuote, PricePoint } from "@/lib/yahoo";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ interface CompanyCardProps {
   regionShare?: { region: Region; share: number };
   prices?: PricePoint[];
   quote?: CompanyQuote | null;
+  rd?: { absolute: number | null; pct: number | null };
 }
 
 export function CompanyCard({
@@ -22,6 +23,7 @@ export function CompanyCard({
   regionShare,
   prices = [],
   quote = null,
+  rd,
 }: CompanyCardProps) {
   const closes = prices.map((p) => p.close);
   const firstClose = closes[0];
@@ -35,12 +37,12 @@ export function CompanyCard({
 
   return (
     <Link href={`/company/${company.slug}`} className="group block">
-      <Card className="flex h-full flex-col border-zinc-200/70 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-zinc-300 hover:shadow-[0_18px_44px_-20px_rgba(11,46,74,0.25)]">
-        <div className="flex items-start justify-between gap-4">
+      <Card
+        className="flex h-full flex-col border-zinc-200/70 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-zinc-300 hover:shadow-[0_18px_44px_-20px_rgba(11,46,74,0.25)]"
+        style={{ borderTopWidth: 3, borderTopColor: company.color }}
+      >
+        <div className="flex items-start">
           <CompanyMonogram company={company} size="lg" />
-          <span className="rounded-md bg-zinc-100 px-2 py-1 font-mono text-[10px] font-medium tracking-wider text-zinc-600">
-            {company.ticker}
-          </span>
         </div>
 
         <div className="mt-5">
@@ -108,6 +110,20 @@ export function CompanyCard({
             <dd className="text-right font-medium text-vig-navy">
               {company.currency}
             </dd>
+            {rd && (rd.absolute !== null || rd.pct !== null) && (
+              <>
+                <dt className="text-zinc-500">R&amp;D-uitgaven</dt>
+                <dd className="text-right font-medium tabular-nums text-vig-navy">
+                  {rd.absolute !== null
+                    ? formatCurrencyCompact(rd.absolute, company.currency)
+                    : "—"}
+                </dd>
+                <dt className="text-zinc-500">R&amp;D / omzet</dt>
+                <dd className="text-right font-medium tabular-nums text-vig-navy">
+                  {rd.pct !== null ? `${rd.pct.toFixed(1)}%` : "—"}
+                </dd>
+              </>
+            )}
           </dl>
 
           <div className="mt-4 flex items-center gap-1 text-sm font-medium text-vig-blue opacity-0 transition-opacity duration-200 group-hover:opacity-100">

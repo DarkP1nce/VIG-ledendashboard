@@ -2,6 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import {
   IndexedRevenueChart,
@@ -23,6 +32,7 @@ interface ComparisonViewProps {
   annualByTicker: Record<string, CompanyAnnualData["data"]>;
   quoteByTicker: Record<string, CompanyQuote | null>;
   regionSharesByTicker: Record<string, Partial<Record<Region, number>>>;
+  rdByTicker: Record<string, { absolute: number | null; pct: number | null }>;
 }
 
 export function ComparisonView({
@@ -30,6 +40,7 @@ export function ComparisonView({
   annualByTicker,
   quoteByTicker,
   regionSharesByTicker,
+  rdByTicker,
 }: ComparisonViewProps) {
   const [region, setRegion] = useState<RegionSelection>("all");
 
@@ -162,6 +173,18 @@ export function ComparisonView({
         </div>
       </section>
 
+      <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
+        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+          R&amp;D-uitgaven vergeleken
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Onderzoek &amp; ontwikkeling als % van de omzet — meest recente jaarcijfers.
+        </p>
+        <div className="mt-6">
+          <RdComparisonChart companies={selectedCompanies} rdByTicker={rdByTicker} />
+        </div>
+      </section>
+
       <section className="mt-6">
         <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
           Kerncijfers
@@ -176,6 +199,7 @@ export function ComparisonView({
               company={c}
               annual={annualByTicker[c.ticker] ?? []}
               quote={quoteByTicker[c.ticker] ?? null}
+              rd={rdByTicker[c.ticker] ?? { absolute: null, pct: null }}
             />
           ))}
         </div>
@@ -193,12 +217,14 @@ interface CompanyMetricCardProps {
   company: Company;
   annual: CompanyAnnualData["data"];
   quote: CompanyQuote | null;
+  rd: { absolute: number | null; pct: number | null };
 }
 
 function CompanyMetricCard({
   company,
   annual,
   quote,
+  rd,
 }: CompanyMetricCardProps) {
   const { latest, prior, netIncome, priorNetIncome } = useMemo(
     () => pickLatestAndPrior(annual),
@@ -265,6 +291,14 @@ function CompanyMetricCard({
               : "—"
           }
         />
+        <Metric
+          label="R&D-uitgaven"
+          value={formatCurrencyCompact(rd.absolute, company.currency)}
+        />
+        <Metric
+          label="R&D / omzet"
+          value={rd.pct !== null ? `${rd.pct.toFixed(1)}%` : "—"}
+        />
       </dl>
     </Link>
   );
@@ -297,6 +331,87 @@ function Metric({
           </span>
         )}
       </dd>
+    </div>
+  );
+}
+
+function RdComparisonChart({
+  companies,
+  rdByTicker,
+}: {
+  companies: Company[];
+  rdByTicker: Record<string, { absolute: number | null; pct: number | null }>;
+}) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const data = companies
+    .map((c) => ({
+      name: c.shortName,
+      pct: rdByTicker[c.ticker]?.pct ?? null,
+      color: c.color,
+    }))
+    .filter((d) => d.pct !== null)
+    .sort((a, b) => (b.pct ?? 0) - (a.pct ?? 0));
+
+  if (data.length === 0) {
+    return (
+      <p className="text-sm text-zinc-500">Geen R&D-data beschikbaar.</p>
+    );
+  }
+
+  if (!mounted) return <div className="h-[260px]" />;
+
+  return (
+    <div className="h-[260px] w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data}
+          layout="vertical"
+          margin={{ top: 0, right: 48, left: 0, bottom: 0 }}
+          barCategoryGap="25%"
+        >
+          <XAxis
+            type="number"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#71717a", fontSize: 11 }}
+            tickFormatter={(v: number) => `${v}%`}
+            domain={[0, "dataMax + 2"]}
+          />
+          <YAxis
+            type="category"
+            dataKey="name"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#71717a", fontSize: 12 }}
+            width={110}
+          />
+          <Tooltip
+            cursor={{ fill: "#f4f4f5" }}
+            content={({ active, payload }) => {
+              if (!active || !payload || payload.length === 0) return null;
+              const d = payload[0]?.payload as (typeof data)[0];
+              return (
+                <div className="rounded-xl border border-zinc-200 bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur">
+                  <p className="font-medium text-vig-navy">{d.name}</p>
+                  <p className="mt-1 text-zinc-600">
+                    R&amp;D / omzet:{" "}
+                    <span className="font-medium text-vig-navy">
+                      {d.pct?.toFixed(1)}%
+                    </span>
+                  </p>
+                </div>
+              );
+            }}
+          />
+          <Bar dataKey="pct" radius={[0, 4, 4, 0]} isAnimationActive={false} label={{ position: "right", formatter: (v: number) => `${v.toFixed(1)}%`, fontSize: 11, fill: "#71717a" }}>
+            {data.map((entry) => (
+              <Cell key={entry.name} fill={entry.color} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }

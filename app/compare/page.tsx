@@ -12,6 +12,7 @@ import {
 import { getIncomeStatementAnnual, getQuote } from "@/lib/yahoo";
 import type { CompanyQuote } from "@/lib/yahoo";
 
+
 export const revalidate = 43200;
 
 export default async function ComparePage() {
@@ -26,15 +27,32 @@ export default async function ComparePage() {
         revenue: p.revenue,
         netIncome: p.netIncome,
       }));
-      return { ticker: c.ticker, annual: annualPoints, quote };
+      const latestAnnual = [...annual]
+        .filter((p) => p.revenue !== null)
+        .sort((a, b) => b.endDate.localeCompare(a.endDate))[0] ?? null;
+      return {
+        ticker: c.ticker,
+        annual: annualPoints,
+        quote,
+        rdAbsolute: latestAnnual?.researchAndDevelopment ?? null,
+        rdRevenue: latestAnnual?.revenue ?? null,
+      };
     }),
   );
 
   const annualByTicker: Record<string, CompanyAnnualPoint[]> = {};
   const quoteByTicker: Record<string, CompanyQuote | null> = {};
+  const rdByTicker: Record<string, { absolute: number | null; pct: number | null }> = {};
   for (const r of results) {
     annualByTicker[r.ticker] = r.annual;
     quoteByTicker[r.ticker] = r.quote;
+    rdByTicker[r.ticker] = {
+      absolute: r.rdAbsolute,
+      pct:
+        r.rdAbsolute !== null && r.rdRevenue !== null && r.rdRevenue > 0
+          ? (r.rdAbsolute / r.rdRevenue) * 100
+          : null,
+    };
   }
 
   const regionSharesByTicker: Record<
@@ -88,28 +106,10 @@ export default async function ComparePage() {
           annualByTicker={annualByTicker}
           quoteByTicker={quoteByTicker}
           regionSharesByTicker={regionSharesByTicker}
+          rdByTicker={rdByTicker}
         />
       </div>
 
-      <section className="mt-12 rounded-2xl border border-dashed border-zinc-300 bg-white/60 p-8">
-        <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-vig-orange" />
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-vig-orange">
-            Volgende stap
-          </p>
-        </div>
-        <h2 className="font-display mt-3 text-2xl font-semibold tracking-tight text-vig-navy">
-          Markt­aandeel per ziekte­gebied
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600">
-          Stacked-bar­grafiek die per ziektegebied (Oncologie, Immunologie, …)
-          toont welk bedrijf welk aandeel had. Vraagt extra invoer­data:
-          omzet per therapeutisch gebied per bedrijf per jaar.
-          Dat kun je handmatig invullen in <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">data/segments.ts</code>{" "}
-          door percentages om te zetten naar absolute bedragen, of via een
-          nieuw bestand <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">data/therapeutic-market-share.ts</code>.
-        </p>
-      </section>
     </div>
   );
 }
