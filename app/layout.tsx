@@ -4,6 +4,7 @@ import Link from "next/link";
 import "./globals.css";
 
 import { CommandPalette } from "@/components/command-palette";
+import { NavLink } from "@/components/nav-link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { companies } from "@/data/companies";
 
@@ -81,19 +82,3 @@ export default function RootLayout({
   );
 }
 
-function NavLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100/80 hover:text-vig-navy dark:text-zinc-300 dark:hover:bg-white/5 dark:hover:text-zinc-100"
-    >
-      {children}
-    </Link>
-  );
-}

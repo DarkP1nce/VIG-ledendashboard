@@ -17,6 +17,7 @@ import {
   type CompanyAnnualData,
 } from "@/components/compare/indexed-revenue-chart";
 import { CompanyMonogram } from "@/components/company-monogram";
+import { CsvExportButton } from "@/components/csv-export-button";
 import { RegionFilter, type RegionSelection } from "@/components/region-filter";
 import type { Company } from "@/data/companies";
 import { REGION_LABELS_NL, type Region } from "@/data/segments";
@@ -86,10 +87,32 @@ export function ComparisonView({
     });
   }
 
+  const csvRows = useMemo(() =>
+    selectedCompanies.map((c) => {
+      const { latest, prior, netIncome } = pickLatestAndPrior(annualByTicker[c.ticker] ?? []);
+      const revenueYoY = latest && prior && prior !== 0 ? ((latest / prior - 1) * 100).toFixed(1) + "%" : "";
+      const netMargin = latest && netIncome !== null && latest !== 0 ? ((netIncome / latest) * 100).toFixed(1) + "%" : "";
+      const rd = rdByTicker[c.ticker];
+      const quote = quoteByTicker[c.ticker];
+      return {
+        Bedrijf: c.shortName,
+        Ticker: c.ticker,
+        Valuta: c.currency,
+        "Omzet (laatste jaar)": latest ?? "",
+        "Omzetgroei YoY": revenueYoY,
+        Nettowinst: netIncome ?? "",
+        Nettomarge: netMargin,
+        Marktwaarde: quote?.marketCap ?? "",
+        "R&D absoluut": rd?.absolute ?? "",
+        "R&D / omzet": rd?.pct !== null && rd?.pct !== undefined ? rd.pct.toFixed(1) + "%" : "",
+      };
+    }), [selectedCompanies, annualByTicker, rdByTicker, quoteByTicker]);
+
   return (
     <div>
-      <section>
+      <section className="flex items-center justify-between gap-4">
         <RegionFilter value={region} onChange={setRegion} />
+        <CsvExportButton rows={csvRows} filename="vig-vergelijking.csv" label="Exporteer CSV" />
       </section>
 
       <section className="mt-6">

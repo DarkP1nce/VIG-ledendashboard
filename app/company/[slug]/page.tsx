@@ -2,14 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 
-import { FinancialsChart } from "@/components/charts/financials-chart";
 import { RdChart } from "@/components/charts/rd-chart";
 import { QuoteTile } from "@/components/charts/quote-tile";
 import { SegmentPie } from "@/components/charts/segment-pie";
 import { TradingViewAdvanced } from "@/components/charts/tradingview-advanced";
 import { CompanyMonogram } from "@/components/company-monogram";
 import { CsvExportButton } from "@/components/csv-export-button";
-import { QuarterlyOverview } from "@/components/quarterly-overview";
+import { FinancialsTabs } from "@/components/financials-tabs";
 import { KeyMetricsRow } from "@/components/key-metrics-row";
 import { companies, getCompanyBySlug } from "@/data/companies";
 import { getLatestSegments } from "@/data/segments";
@@ -121,30 +120,15 @@ export default async function CompanyDetailPage({ params }: PageProps) {
         </div>
         <div className="rounded-2xl border bg-white p-6 shadow-card lg:col-span-2">
           <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-            Omzet & nettowinst
+            Financiële resultaten
           </h2>
-          <p className="mt-1 text-sm text-zinc-500">
-            5 jaar historie waar beschikbaar.
-          </p>
           <div className="mt-4">
-            <FinancialsChart
+            <FinancialsTabs
               annual={annual}
               quarterly={quarterly}
               currency={company.currency}
             />
           </div>
-        </div>
-      </section>
-
-      <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
-        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-          Recente kwartalen
-        </h2>
-        <p className="mt-1 text-sm text-zinc-500">
-          Omzet, nettowinst, nettomarge en R&amp;D per kwartaal.
-        </p>
-        <div className="mt-6">
-          <QuarterlyOverview quarterly={quarterly} currency={company.currency} />
         </div>
       </section>
 

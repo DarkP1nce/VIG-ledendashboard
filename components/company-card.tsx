@@ -151,6 +151,14 @@ export function CompanyCard({
             <dd className="text-right font-medium text-vig-navy">
               {company.currency}
             </dd>
+            {quote?.marketCap && (
+              <>
+                <dt className="text-zinc-500">Marktwaarde</dt>
+                <dd className="text-right font-medium tabular-nums text-vig-navy">
+                  {formatCurrencyCompact(quote.marketCap, company.currency)}
+                </dd>
+              </>
+            )}
             {rd && (rd.absolute !== null || rd.pct !== null) && (
               <>
                 <dt className="text-zinc-500">R&amp;D-uitgaven</dt>
