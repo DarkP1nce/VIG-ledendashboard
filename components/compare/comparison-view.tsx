@@ -383,10 +383,10 @@ function RdComparisonChart({
     );
   }
 
-  if (!mounted) return <div className="h-[260px]" />;
+  if (!mounted) return <div className="h-[520px]" />;
 
   return (
-    <div className="h-[260px] w-full">
+    <div className="h-[520px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
