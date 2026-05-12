@@ -144,6 +144,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
           </div>
           <div className="mt-4">
             <TradingViewAdvanced
+              key={company.tradingViewSymbol}
               symbol={company.tradingViewSymbol}
               height={680}
             />
