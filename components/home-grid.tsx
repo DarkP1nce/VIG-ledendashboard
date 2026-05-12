@@ -149,6 +149,7 @@ export function HomeGrid({
                 ? { name: filters.therapeuticArea, share: taShare }
                 : undefined
             }
+            highlightRd={filters.rdSort !== "none" ? filters.rdSort : undefined}
             prices={pricesByTicker[company.ticker] ?? []}
             quote={quotesByTicker[company.ticker] ?? null}
             rd={rdByTicker[company.ticker] ?? { absolute: null, pct: null }}

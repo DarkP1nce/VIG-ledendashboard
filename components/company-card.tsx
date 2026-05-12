@@ -14,6 +14,7 @@ interface CompanyCardProps {
   company: Company;
   regionShare?: { region: Region; share: number };
   therapeuticAreaShare?: { name: string; share: number };
+  highlightRd?: "pct" | "absolute";
   prices?: PricePoint[];
   quote?: CompanyQuote | null;
   rd?: { absolute: number | null; pct: number | null };
@@ -23,6 +24,7 @@ export function CompanyCard({
   company,
   regionShare,
   therapeuticAreaShare,
+  highlightRd,
   prices = [],
   quote = null,
   rd,
@@ -54,26 +56,47 @@ export function CompanyCard({
           <p className="mt-1 text-sm text-zinc-500">{company.headquarters}</p>
         </div>
 
-        {regionShare && (
-          <div className="mt-5 rounded-xl bg-gradient-to-br from-vig-orange-soft/10 to-vig-orange/5 px-4 py-3">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-vig-orange-dark">
-              Omzet uit {REGION_LABELS_NL[regionShare.region]}
-            </p>
-            <p className="mt-0.5 font-display text-2xl font-semibold tabular-nums tracking-tight text-vig-navy">
-              {regionShare.share}%
-            </p>
-          </div>
-        )}
-        {therapeuticAreaShare && !regionShare && (
-          <div className="mt-5 rounded-xl bg-gradient-to-br from-vig-orange-soft/10 to-vig-orange/5 px-4 py-3">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-vig-orange-dark">
-              Omzet uit {therapeuticAreaShare.name}
-            </p>
-            <p className="mt-0.5 font-display text-2xl font-semibold tabular-nums tracking-tight text-vig-navy">
-              {therapeuticAreaShare.share}%
-            </p>
-          </div>
-        )}
+        {(regionShare || therapeuticAreaShare || highlightRd) && (() => {
+          const primaryLabel = regionShare
+            ? `Omzet uit ${REGION_LABELS_NL[regionShare.region]}`
+            : therapeuticAreaShare
+            ? `Omzet uit ${therapeuticAreaShare.name}`
+            : null;
+          const primaryValue = regionShare
+            ? `${regionShare.share}%`
+            : therapeuticAreaShare
+            ? `${therapeuticAreaShare.share}%`
+            : null;
+          const rdLabel = highlightRd === "pct" ? "R&D / omzet" : "R&D absoluut";
+          const rdValue = highlightRd === "pct"
+            ? (rd?.pct !== null && rd?.pct !== undefined ? `${rd.pct.toFixed(1)}%` : "—")
+            : formatCurrencyCompact(rd?.absolute ?? null, company.currency);
+          const dual = primaryLabel && highlightRd;
+          return (
+            <div className={cn("mt-5", dual ? "grid grid-cols-2 gap-2" : "")}>
+              {primaryLabel && (
+                <div className="rounded-xl bg-gradient-to-br from-vig-orange-soft/10 to-vig-orange/5 px-4 py-3">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-vig-orange-dark">
+                    {primaryLabel}
+                  </p>
+                  <p className={cn("mt-0.5 font-display font-semibold tabular-nums tracking-tight text-vig-navy", dual ? "text-xl" : "text-2xl")}>
+                    {primaryValue}
+                  </p>
+                </div>
+              )}
+              {highlightRd && (
+                <div className="rounded-xl bg-gradient-to-br from-violet-50 to-violet-50/50 px-4 py-3">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-violet-600">
+                    {rdLabel}
+                  </p>
+                  <p className={cn("mt-0.5 font-display font-semibold tabular-nums tracking-tight text-vig-navy", dual ? "text-xl" : "text-2xl")}>
+                    {rdValue}
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         <div className="mt-auto pt-6">
           {closes.length >= 2 ? (
