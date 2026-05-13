@@ -75,20 +75,6 @@ export function CompanyCard({
         </div>
 
         {(regionShare || therapeuticAreaShare || highlight) && (() => {
-          // Filter tile (region / therapeutic area)
-          const filterLabel = regionShare
-            ? `Omzet uit ${REGION_LABELS_NL[regionShare.region]}`
-            : therapeuticAreaShare
-            ? `Omzet uit ${therapeuticAreaShare.name}`
-            : null;
-          const filterValue = regionShare
-            ? `${regionShare.share}%`
-            : therapeuticAreaShare
-            ? `${therapeuticAreaShare.share}%`
-            : null;
-          const filterAbsolute = regionShare?.absoluteRevenue ?? therapeuticAreaShare?.absoluteRevenue ?? null;
-          const hasFilter = !!filterLabel;
-
           // Sort highlight tile
           type TileStyle = { bg: string; label: string; text: string };
           const ORANGE: TileStyle = { bg: "bg-gradient-to-br from-vig-orange-soft/10 to-vig-orange/5", label: "text-vig-orange-dark", text: "text-vig-navy" };
@@ -126,8 +112,49 @@ export function CompanyCard({
             sortStyle = (netMargin ?? 0) >= 0 ? GREEN : RED;
           }
 
-          if (!hasFilter) {
-            // Only sort — show prominently (large tile)
+          // Both filters active — show each dimension separately + disclaimer
+          if (regionShare && therapeuticAreaShare) {
+            return (
+              <div className="mt-5 space-y-1.5">
+                <div className="flex items-center justify-between gap-2 rounded-lg bg-gradient-to-r from-vig-orange-soft/10 to-vig-orange/5 px-3 py-2">
+                  <p className="min-w-0 truncate text-[10px] font-medium uppercase tracking-wider text-vig-orange-dark">
+                    Omzet {REGION_LABELS_NL[regionShare.region]}
+                  </p>
+                  <div className="shrink-0 text-right">
+                    <span className="font-display text-base font-semibold tabular-nums tracking-tight text-vig-navy">
+                      {regionShare.share}%
+                    </span>
+                    {regionShare.absoluteRevenue !== null && (
+                      <span className="ml-1.5 text-xs text-zinc-400">
+                        ≈ {fmtAmount(regionShare.absoluteRevenue, company.currency)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-2 rounded-lg bg-violet-50/70 px-3 py-2">
+                  <p className="min-w-0 truncate text-[10px] font-medium uppercase tracking-wider text-violet-500">
+                    Omzet {therapeuticAreaShare.name}
+                  </p>
+                  <div className="shrink-0 text-right">
+                    <span className="font-display text-base font-semibold tabular-nums tracking-tight text-vig-navy">
+                      {therapeuticAreaShare.share}%
+                    </span>
+                    {therapeuticAreaShare.absoluteRevenue !== null && (
+                      <span className="ml-1.5 text-xs text-zinc-400">
+                        ≈ {fmtAmount(therapeuticAreaShare.absoluteRevenue, company.currency)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <p className="px-1 pt-0.5 text-[10px] leading-snug text-zinc-400">
+                  Gecombineerde regio × ziektegebied data is niet publiek beschikbaar.
+                </p>
+              </div>
+            );
+          }
+
+          // Only sort active — show prominently (large tile)
+          if (!regionShare && !therapeuticAreaShare) {
             return (
               <div className={`mt-5 rounded-xl ${sortStyle.bg} px-4 py-3`}>
                 <p className={`text-[11px] font-medium uppercase tracking-wider ${sortStyle.label}`}>
@@ -140,7 +167,15 @@ export function CompanyCard({
             );
           }
 
-          // Filter active — stacked compact tiles
+          // Single filter active — stacked compact tiles
+          const filterLabel = regionShare
+            ? `Omzet uit ${REGION_LABELS_NL[regionShare.region]}`
+            : `Omzet uit ${therapeuticAreaShare!.name}`;
+          const filterValue = regionShare
+            ? `${regionShare.share}%`
+            : `${therapeuticAreaShare!.share}%`;
+          const filterAbsolute = regionShare?.absoluteRevenue ?? therapeuticAreaShare?.absoluteRevenue ?? null;
+
           return (
             <div className="mt-5 space-y-1.5">
               <div className="flex items-center justify-between gap-2 rounded-lg bg-gradient-to-r from-vig-orange-soft/10 to-vig-orange/5 px-3 py-2">
@@ -152,11 +187,11 @@ export function CompanyCard({
                 </p>
               </div>
               {filterAbsolute !== null && (
-                <div className="flex items-center justify-between gap-2 rounded-lg bg-sky-50/80 px-3 py-2 dark:bg-sky-950/30">
-                  <p className="min-w-0 truncate text-[10px] font-medium uppercase tracking-wider text-sky-600 dark:text-sky-400">
+                <div className="flex items-center justify-between gap-2 rounded-lg bg-sky-50/80 px-3 py-2">
+                  <p className="min-w-0 truncate text-[10px] font-medium uppercase tracking-wider text-sky-600">
                     Omzet absoluut
                   </p>
-                  <p className="shrink-0 font-display text-base font-semibold tabular-nums tracking-tight text-vig-navy dark:text-zinc-100">
+                  <p className="shrink-0 font-display text-base font-semibold tabular-nums tracking-tight text-vig-navy">
                     ≈ {fmtAmount(filterAbsolute, company.currency)}
                   </p>
                 </div>
