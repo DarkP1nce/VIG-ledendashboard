@@ -11,7 +11,9 @@ import { CompanyMonogram } from "@/components/company-monogram";
 import { CsvExportButton } from "@/components/csv-export-button";
 import { FinancialsTabs } from "@/components/financials-tabs";
 import { KeyMetricsRow } from "@/components/key-metrics-row";
+import { PipelineOverview } from "@/components/pipeline-overview";
 import { companies, getCompanyBySlug } from "@/data/companies";
+import { getPipeline } from "@/data/pipeline";
 import { getLatestSegments } from "@/data/segments";
 import {
   getHistoricalPrices5y,
@@ -60,6 +62,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
   ]);
 
   const latest = getLatestSegments(company.ticker);
+  const pipeline = getPipeline(company.ticker);
 
   const csvRows = [
     ...annual.map((p) => ({
@@ -231,6 +234,27 @@ export default async function CompanyDetailPage({ params }: PageProps) {
           <RdChart annual={annual} currency={company.currency} />
         </div>
       </section>
+
+      {pipeline && (
+        <section className="mt-6 rounded-2xl border bg-white p-6 shadow-card">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+                Klinische Pipeline
+              </h2>
+              <p className="mt-1 text-sm text-zinc-500">
+                Geneesmiddelkandidaten per ontwikkelingsfase.
+              </p>
+            </div>
+            <span className="shrink-0 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-semibold text-zinc-600">
+              {pipeline.candidates.length} kandidaten
+            </span>
+          </div>
+          <div className="mt-6">
+            <PipelineOverview ticker={company.ticker} color={company.color} />
+          </div>
+        </section>
+      )}
 
       {latest?.source && (
         <p className="mt-8 text-xs text-zinc-500">
