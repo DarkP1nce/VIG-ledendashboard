@@ -116,35 +116,31 @@ export function CompanyCard({
           if (regionShare && therapeuticAreaShare) {
             return (
               <div className="mt-5 space-y-1.5">
-                <div className="flex items-center justify-between gap-2 rounded-lg bg-gradient-to-r from-vig-orange-soft/10 to-vig-orange/5 px-3 py-2">
-                  <p className="min-w-0 truncate text-[10px] font-medium uppercase tracking-wider text-vig-orange-dark">
+                <div className="rounded-lg bg-gradient-to-r from-vig-orange-soft/10 to-vig-orange/5 px-3 py-2.5">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-vig-orange-dark">
                     Omzet {REGION_LABELS_NL[regionShare.region]}
                   </p>
-                  <div className="shrink-0 text-right">
-                    <span className="font-display text-base font-semibold tabular-nums tracking-tight text-vig-navy">
-                      {regionShare.share}%
-                    </span>
-                    {regionShare.absoluteRevenue !== null && (
-                      <span className="ml-1.5 text-xs text-zinc-400">
-                        ≈ {fmtAmount(regionShare.absoluteRevenue, company.currency)}
-                      </span>
-                    )}
-                  </div>
+                  <p className="mt-0.5 font-display text-xl font-semibold tabular-nums tracking-tight text-vig-navy">
+                    {regionShare.share}%
+                  </p>
+                  {regionShare.absoluteRevenue !== null && (
+                    <p className="mt-0.5 text-xs text-zinc-400">
+                      ≈ {fmtAmount(regionShare.absoluteRevenue, company.currency)}
+                    </p>
+                  )}
                 </div>
-                <div className="flex items-center justify-between gap-2 rounded-lg bg-violet-50/70 px-3 py-2">
-                  <p className="min-w-0 truncate text-[10px] font-medium uppercase tracking-wider text-violet-500">
+                <div className="rounded-lg bg-violet-50/70 px-3 py-2.5">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-violet-500">
                     Omzet {therapeuticAreaShare.name}
                   </p>
-                  <div className="shrink-0 text-right">
-                    <span className="font-display text-base font-semibold tabular-nums tracking-tight text-vig-navy">
-                      {therapeuticAreaShare.share}%
-                    </span>
-                    {therapeuticAreaShare.absoluteRevenue !== null && (
-                      <span className="ml-1.5 text-xs text-zinc-400">
-                        ≈ {fmtAmount(therapeuticAreaShare.absoluteRevenue, company.currency)}
-                      </span>
-                    )}
-                  </div>
+                  <p className="mt-0.5 font-display text-xl font-semibold tabular-nums tracking-tight text-vig-navy">
+                    {therapeuticAreaShare.share}%
+                  </p>
+                  {therapeuticAreaShare.absoluteRevenue !== null && (
+                    <p className="mt-0.5 text-xs text-zinc-400">
+                      ≈ {fmtAmount(therapeuticAreaShare.absoluteRevenue, company.currency)}
+                    </p>
+                  )}
                 </div>
                 <p className="px-1 pt-0.5 text-[10px] leading-snug text-zinc-400">
                   Hoeveel van de {therapeuticAreaShare.name.toLowerCase()}-omzet uit {REGION_LABELS_NL[regionShare.region]} komt, wordt door bedrijven niet apart gepubliceerd.
