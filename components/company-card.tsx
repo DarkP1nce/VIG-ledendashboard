@@ -147,7 +147,7 @@ export function CompanyCard({
                   </div>
                 </div>
                 <p className="px-1 pt-0.5 text-[10px] leading-snug text-zinc-400">
-                  Gecombineerde regio × ziektegebied data is niet publiek beschikbaar.
+                  Hoeveel van de {therapeuticAreaShare.name.toLowerCase()}-omzet uit {REGION_LABELS_NL[regionShare.region]} komt, wordt door bedrijven niet apart gepubliceerd.
                 </p>
               </div>
             );
