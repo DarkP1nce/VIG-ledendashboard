@@ -163,41 +163,38 @@ export function CompanyCard({
             );
           }
 
-          // Single filter active — stacked compact tiles
-          const filterLabel = regionShare
-            ? `Omzet uit ${REGION_LABELS_NL[regionShare.region]}`
-            : `Omzet uit ${therapeuticAreaShare!.name}`;
-          const filterValue = regionShare
-            ? `${regionShare.share}%`
+          // Single filter active — stacked layout
+          const isRegion = !!regionShare;
+          const filterLabel = isRegion
+            ? `Omzet ${REGION_LABELS_NL[regionShare!.region]}`
+            : `Omzet ${therapeuticAreaShare!.name}`;
+          const filterPct = isRegion
+            ? `${regionShare!.share}%`
             : `${therapeuticAreaShare!.share}%`;
           const filterAbsolute = regionShare?.absoluteRevenue ?? therapeuticAreaShare?.absoluteRevenue ?? null;
+          const filterLabelColor = isRegion ? "text-vig-orange-dark" : "text-violet-500";
 
           return (
             <div className="mt-5 space-y-1.5">
-              <div className="flex items-center justify-between gap-2 rounded-lg bg-gradient-to-r from-vig-orange-soft/10 to-vig-orange/5 px-3 py-2">
-                <p className="min-w-0 truncate text-[10px] font-medium uppercase tracking-wider text-vig-orange-dark">
+              <div className={`rounded-lg px-3 py-2.5 ${isRegion ? "bg-gradient-to-r from-vig-orange-soft/10 to-vig-orange/5" : "bg-violet-50/70"}`}>
+                <p className={`text-[10px] font-medium uppercase tracking-wider ${filterLabelColor}`}>
                   {filterLabel}
                 </p>
-                <p className="shrink-0 font-display text-base font-semibold tabular-nums tracking-tight text-vig-navy">
-                  {filterValue}
+                <p className="mt-0.5 font-display text-xl font-semibold tabular-nums tracking-tight text-vig-navy">
+                  {filterPct}
                 </p>
-              </div>
-              {filterAbsolute !== null && (
-                <div className="flex items-center justify-between gap-2 rounded-lg bg-sky-50/80 px-3 py-2">
-                  <p className="min-w-0 truncate text-[10px] font-medium uppercase tracking-wider text-sky-600">
-                    Omzet absoluut
-                  </p>
-                  <p className="shrink-0 font-display text-base font-semibold tabular-nums tracking-tight text-vig-navy">
+                {filterAbsolute !== null && (
+                  <p className="mt-0.5 text-xs text-zinc-400">
                     ≈ {fmtAmount(filterAbsolute, company.currency)}
                   </p>
-                </div>
-              )}
+                )}
+              </div>
               {highlight && (
-                <div className={`flex items-center justify-between gap-2 rounded-lg ${sortStyle.bg} px-3 py-2`}>
-                  <p className={`min-w-0 truncate text-[10px] font-medium uppercase tracking-wider ${sortStyle.label}`}>
+                <div className={`rounded-lg ${sortStyle.bg} px-3 py-2.5`}>
+                  <p className={`text-[10px] font-medium uppercase tracking-wider ${sortStyle.label}`}>
                     {sortLabel}
                   </p>
-                  <p className={`shrink-0 font-display text-base font-semibold tabular-nums tracking-tight ${sortStyle.text}`}>
+                  <p className={`mt-0.5 font-display text-xl font-semibold tabular-nums tracking-tight ${sortStyle.text}`}>
                     {sortValue}
                   </p>
                 </div>
