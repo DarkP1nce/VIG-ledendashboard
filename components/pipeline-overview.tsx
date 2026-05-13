@@ -10,6 +10,7 @@ const TA_COLORS: Record<string, { bg: string; text: string }> = {
   "Infectieziekten":     { bg: "bg-emerald-100", text: "text-emerald-700" },
   "Hematologie":         { bg: "bg-rose-100",    text: "text-rose-700" },
   "Vaccins":             { bg: "bg-teal-100",    text: "text-teal-700" },
+  "Vrouwengezondheid":   { bg: "bg-pink-100",    text: "text-pink-700" },
 };
 
 const PHASE_META = [
